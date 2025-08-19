@@ -57,7 +57,7 @@ uv run python script.py
 uv run pytest
 
 # Run with coverage
-uv run pytest --cov=src/{package_name}
+uv run pytest --cov=src/{{package_name}}
 
 # Run any command
 uv run make test
@@ -119,14 +119,14 @@ dev-dependencies = [
 ```bash
 # Initial setup
 git clone <repo>
-cd {project-name}
+cd {{project-name}}
 uv sync --dev
 
 # Run tests
 uv run pytest
 
 # Run with coverage
-uv run pytest --cov=src/{package_name}
+uv run pytest --cov=src/{{package_name}}
 
 # Run linting
 uv run ruff check .
@@ -194,7 +194,7 @@ test:
 
 # Run with coverage
 test-cov:
-	uv run pytest --cov=src/{package_name}
+	uv run pytest --cov=src/{{package_name}}
 
 # Linting
 lint:
@@ -217,7 +217,7 @@ typecheck:
   run: uv sync --dev
 
 - name: Run tests
-  run: uv run pytest --cov=src/{package_name}
+  run: uv run pytest --cov=src/{{package_name}}
 ```
 
 ## Migration from pip
@@ -334,3 +334,11 @@ uv sync --workspace
 - [pyproject.toml Specification](https://packaging.python.org/en/latest/specifications/pyproject-toml/)
 - [Python Packaging Guide](https://packaging.python.org/)
 - [Project README](../README.md)
+
+## Template Metadata
+
+- **Repository**: [vibe-coding-templates](https://github.com/chrishayuk/vibe-coding-templates)
+- **Path**: python/docs/PACKAGE_MANAGEMENT.md
+- **Version**: 1.0.0
+- **Date**: 2025-01-19
+- **Author**: chrishayuk
