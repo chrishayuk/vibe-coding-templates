@@ -1,0 +1,63 @@
+# Markdown Pre-commit Hook Template
+# Lint and format markdown files
+
+# Add these hooks to your .pre-commit-config.yaml
+
+# Markdown linting with markdownlint
+- repo: https://github.com/igorshubovych/markdownlint-cli
+  rev: v0.39.0  # Update to latest version
+  hooks:
+    - id: markdownlint
+      name: Lint markdown files
+      args: [--fix]
+
+# Alternative: Using prettier for markdown
+- repo: https://github.com/pre-commit/mirrors-prettier
+  rev: v3.1.0  # Update to latest version
+  hooks:
+    - id: prettier
+      name: Format markdown with prettier
+      types_or: [markdown]
+      additional_dependencies:
+        - prettier@3.1.0
+
+# Local markdown checks
+- repo: local
+  hooks:
+    - id: check-markdown-links
+      name: Check markdown links
+      entry: bash -c 'find . -name "*.md" -exec grep -l "\[.*\]()" {} \; | if read; then echo "Empty markdown links found"; exit 1; fi'
+      language: system
+      files: \.md$
+      
+    - id: check-markdown-todos
+      name: Check for TODOs in markdown
+      entry: bash -c 'grep -r "TODO\|FIXME\|XXX" --include="*.md" . || true'
+      language: system
+      files: \.md$
+
+# Markdownlint configuration (.markdownlint.yaml)
+# default: true
+# MD013:  # Line length
+#   line_length: 120
+#   code_blocks: false
+#   tables: false
+# MD033:  # No inline HTML
+#   allowed_elements: [br, details, summary]
+# MD041: false  # First line in file should be a top level heading
+# no-hard-tabs: true
+# no-trailing-spaces: true
+
+# Prettier configuration (.prettierrc)
+# {
+#   "printWidth": 100,
+#   "proseWrap": "preserve",
+#   "tabWidth": 2,
+#   "useTabs": false
+# }
+
+# Customization Notes:
+# - Choose between markdownlint or prettier
+# - Configure line length and formatting rules
+# - Add custom checks for project conventions
+# - Consider spell-checking with codespell

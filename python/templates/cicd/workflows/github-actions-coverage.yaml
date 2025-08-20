@@ -1,0 +1,59 @@
+# GitHub Actions Test Coverage Template
+# Add this job to your .github/workflows/test.yml or create a new workflow
+
+name: Test Coverage
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test-coverage:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Install uv
+      uses: astral-sh/setup-uv@v3
+      
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+        
+    - name: Install dependencies
+      run: |
+        uv sync --dev
+        
+    - name: Run tests with coverage
+      run: |
+        uv run pytest --cov=src/{package_name} \
+                      --cov-report=xml \
+                      --cov-report=term \
+                      --cov-fail-under=80
+                      
+    - name: Upload coverage reports to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage.xml
+        fail_ci_if_error: true
+        verbose: true
+        
+    - name: Archive coverage report
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: coverage-report
+        path: |
+          coverage.xml
+          htmlcov/
+          
+# Customization Notes:
+# - Replace {package_name} with your actual package name
+# - Adjust Python version as needed
+# - Modify --cov-fail-under threshold (current: 80%)
+# - Add matrix strategy for multiple Python versions
+# - Configure Codecov token if repository is private

@@ -1,0 +1,52 @@
+# Ruff Pre-commit Hooks Template
+# Fast Python linter and formatter written in Rust
+
+# Add these hooks to your .pre-commit-config.yaml
+
+# Using ruff from pre-commit repository
+- repo: https://github.com/astral-sh/ruff-pre-commit
+  rev: v0.8.0  # Update to latest version
+  hooks:
+    # Linter
+    - id: ruff
+      name: Ruff linter
+      args: [--fix, --exit-non-zero-on-fix]
+      
+    # Formatter
+    - id: ruff-format
+      name: Ruff formatter
+
+# Alternative: Using local ruff installation
+- repo: local
+  hooks:
+    - id: ruff-check
+      name: Check with ruff
+      entry: uv run ruff check
+      language: system
+      types: [python]
+      args: [--fix]
+      
+    - id: ruff-format
+      name: Format with ruff
+      entry: uv run ruff format
+      language: system
+      types: [python]
+
+# Configuration (add to pyproject.toml)
+# [tool.ruff]
+# line-length = 88
+# target-version = "py311"
+# 
+# [tool.ruff.lint]
+# select = ["E", "F", "I", "N", "UP", "B", "A", "C4", "SIM", "ARG"]
+# ignore = ["E501"]  # Line too long
+# 
+# [tool.ruff.format]
+# quote-style = "double"
+# indent-style = "space"
+
+# Customization Notes:
+# - Update rev to latest ruff version
+# - Configure rules in pyproject.toml
+# - Add --fix for auto-fixing
+# - Use --exit-non-zero-on-fix to fail on changes

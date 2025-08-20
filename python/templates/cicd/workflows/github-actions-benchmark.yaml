@@ -1,0 +1,135 @@
+# GitHub Actions Performance Benchmark Template
+# Run and track performance benchmarks
+
+name: Performance Benchmarks
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    - cron: '0 0 * * 0'  # Weekly on Sunday
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  deployments: write
+
+jobs:
+  benchmark:
+    name: Run benchmarks
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Install uv
+      uses: astral-sh/setup-uv@v3
+      
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+        
+    - name: Cache dependencies
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.cache/uv
+          .venv
+        key: ${{ runner.os }}-benchmark-uv-${{ hashFiles('**/uv.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-benchmark-uv-
+          
+    - name: Install dependencies
+      run: |
+        uv sync --dev
+        uv add --dev pytest-benchmark
+        
+    - name: Run benchmarks
+      run: |
+        uv run pytest tests/performance/ \
+          --benchmark-only \
+          --benchmark-json=benchmark.json \
+          --benchmark-autosave \
+          --benchmark-compare-fail=min:10% \
+          --benchmark-columns=min,max,mean,stddev,median
+          
+    - name: Store benchmark result
+      uses: benchmark-action/github-action-benchmark@v1
+      with:
+        name: Python Benchmark
+        tool: 'pytest'
+        output-file-path: benchmark.json
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        auto-push: true
+        comment-on-alert: true
+        alert-threshold: '110%'
+        fail-on-alert: true
+        
+    - name: Upload benchmark results
+      uses: actions/upload-artifact@v3
+      with:
+        name: benchmark-results
+        path: |
+          benchmark.json
+          .benchmarks/
+          
+  profile:
+    name: Performance profiling
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch'
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Install uv
+      uses: astral-sh/setup-uv@v3
+      
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+        
+    - name: Install dependencies
+      run: |
+        uv sync --dev
+        uv add --dev py-spy memory-profiler
+        
+    - name: Run CPU profiling
+      run: |
+        uv run py-spy record -o profile.svg -- \
+          python -m pytest tests/performance/ -k "slow"
+          
+    - name: Run memory profiling
+      run: |
+        uv run mprof run pytest tests/performance/
+        uv run mprof plot -o memory.png
+        
+    - name: Upload profiling results
+      uses: actions/upload-artifact@v3
+      with:
+        name: profiling-results
+        path: |
+          profile.svg
+          memory.png
+          mprofile_*.dat
+
+# Benchmark test example (tests/performance/test_benchmark.py):
+# import pytest
+# 
+# def test_performance(benchmark):
+#     result = benchmark(function_to_test, arg1, arg2)
+#     assert result == expected
+# 
+# @pytest.mark.benchmark(group="critical")
+# def test_critical_path(benchmark):
+#     benchmark.pedantic(critical_function, rounds=100, iterations=5)
+
+# Customization Notes:
+# - Configure benchmark thresholds based on requirements
+# - Add specific performance test markers
+# - Consider using asv for more detailed tracking
+# - Add memory leak detection with tracemalloc
+# - Configure alert thresholds for regression detection

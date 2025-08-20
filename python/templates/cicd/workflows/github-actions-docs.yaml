@@ -1,0 +1,162 @@
+# GitHub Actions Documentation Build Template
+# Build and deploy project documentation
+
+name: Documentation
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'docs/**'
+      - 'src/**/*.py'
+      - 'mkdocs.yml'
+      - 'README.md'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'docs/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build-docs:
+    name: Build documentation
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Install uv
+      uses: astral-sh/setup-uv@v3
+      
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+        
+    - name: Cache dependencies
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.cache/uv
+          .venv
+        key: ${{ runner.os }}-docs-uv-${{ hashFiles('**/uv.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-docs-uv-
+          
+    - name: Install dependencies
+      run: |
+        uv sync --dev
+        uv add --dev mkdocs mkdocs-material mkdocstrings[python] mkdocs-gen-files mkdocs-literate-nav
+        
+    - name: Build MkDocs documentation
+      run: |
+        uv run mkdocs build --strict --verbose
+        
+    - name: Upload documentation artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: documentation
+        path: site/
+        
+  deploy-docs:
+    name: Deploy to GitHub Pages
+    needs: build-docs
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+      
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Download documentation artifacts
+      uses: actions/download-artifact@v3
+      with:
+        name: documentation
+        path: site/
+        
+    - name: Setup Pages
+      uses: actions/configure-pages@v4
+      
+    - name: Upload to Pages
+      uses: actions/upload-pages-artifact@v2
+      with:
+        path: site/
+        
+    - name: Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v3
+      
+  api-docs:
+    name: Generate API documentation
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Install uv
+      uses: astral-sh/setup-uv@v3
+      
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+        
+    - name: Install dependencies
+      run: |
+        uv sync --dev
+        uv add --dev sphinx sphinx-autodoc-typehints sphinx-rtd-theme
+        
+    - name: Generate Sphinx documentation
+      run: |
+        uv run sphinx-apidoc -o docs/api src/{package_name}
+        uv run sphinx-build -b html docs docs/_build
+        
+    - name: Upload API documentation
+      uses: actions/upload-artifact@v3
+      with:
+        name: api-documentation
+        path: docs/_build/
+
+# MkDocs configuration example (mkdocs.yml):
+# site_name: {package_name} Documentation
+# site_url: https://{username}.github.io/{repo}
+# repo_url: https://github.com/{username}/{repo}
+# repo_name: {username}/{repo}
+# 
+# theme:
+#   name: material
+#   features:
+#     - navigation.tabs
+#     - navigation.sections
+#     - toc.integrate
+#     - search.suggest
+#     - search.highlight
+#     
+# plugins:
+#   - search
+#   - mkdocstrings:
+#       handlers:
+#         python:
+#           paths: [src]
+#   - gen-files
+#   - literate-nav
+#   
+# nav:
+#   - Home: index.md
+#   - Installation: installation.md
+#   - Usage: usage.md
+#   - API Reference: reference/
+
+# Customization Notes:
+# - Replace {package_name}, {username}, {repo} with actual values
+# - Choose between MkDocs or Sphinx for documentation
+# - Configure auto-generation of API docs from docstrings
+# - Add versioned documentation support if needed
+# - Consider adding spell-checking and link validation

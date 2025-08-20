@@ -1,0 +1,149 @@
+# GitHub Actions Release Template
+# Automated package building and publishing
+
+name: Release
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (e.g., 1.2.3)'
+        required: true
+      test_pypi:
+        description: 'Publish to Test PyPI first'
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+  id-token: write  # For trusted publishing
+
+jobs:
+  build:
+    name: Build distribution
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Install uv
+      uses: astral-sh/setup-uv@v3
+      
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+        
+    - name: Install build dependencies
+      run: |
+        uv sync --dev
+        uv add --dev build twine
+        
+    - name: Build package
+      run: |
+        uv run python -m build
+        
+    - name: Check distribution
+      run: |
+        uv run twine check dist/*
+        ls -la dist/
+        
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: dist
+        path: dist/
+        
+  test-pypi:
+    name: Publish to Test PyPI
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.event.inputs.test_pypi == 'true' || github.event_name == 'release'
+    environment: test-pypi
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Install uv
+      uses: astral-sh/setup-uv@v3
+      
+    - name: Download artifacts
+      uses: actions/download-artifact@v3
+      with:
+        name: dist
+        path: dist/
+        
+    - name: Publish to Test PyPI
+      env:
+        TWINE_USERNAME: __token__
+        TWINE_PASSWORD: ${{ secrets.TEST_PYPI_API_TOKEN }}
+      run: |
+        uv run twine upload --repository testpypi dist/*
+        
+    - name: Test installation from Test PyPI
+      run: |
+        uv pip install --index-url https://test.pypi.org/simple/ \
+          --extra-index-url https://pypi.org/simple/ \
+          {package_name}==${{ github.event.inputs.version || github.ref_name }}
+        uv run python -c "import {package_name}; print({package_name}.__version__)"
+        
+  pypi:
+    name: Publish to PyPI
+    needs: [build, test-pypi]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'release'
+    environment: pypi
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Install uv
+      uses: astral-sh/setup-uv@v3
+      
+    - name: Download artifacts
+      uses: actions/download-artifact@v3
+      with:
+        name: dist
+        path: dist/
+        
+    - name: Publish to PyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        password: ${{ secrets.PYPI_API_TOKEN }}
+        
+  github-release:
+    name: Update GitHub Release
+    needs: pypi
+    runs-on: ubuntu-latest
+    if: github.event_name == 'release'
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Download artifacts
+      uses: actions/download-artifact@v3
+      with:
+        name: dist
+        path: dist/
+        
+    - name: Upload to GitHub Release
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        gh release upload ${{ github.ref_name }} dist/* --clobber
+        
+    - name: Generate changelog
+      run: |
+        echo "## What's Changed" > changelog.md
+        gh pr list --state merged --limit 20 --json title,number \
+          --jq '.[] | "- \(.title) (#\(.number))"' >> changelog.md
+        gh release edit ${{ github.ref_name }} --notes-file changelog.md
+
+# Customization Notes:
+# - Replace {package_name} with your package name
+# - Set up PyPI API tokens in repository secrets
+# - Configure trusted publishing for enhanced security
+# - Add version bumping automation if needed
+# - Consider adding changelog generation from commits

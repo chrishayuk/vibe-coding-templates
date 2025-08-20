@@ -1,0 +1,63 @@
+# Pytest Pre-commit Hook Template
+# Run tests before committing
+
+# Add these hooks to your .pre-commit-config.yaml
+
+- repo: local
+  hooks:
+    # Fast unit tests (pre-commit)
+    - id: pytest-fast
+      name: Fast unit tests
+      entry: uv run pytest
+      language: system
+      pass_filenames: false
+      always_run: true
+      stages: [commit]
+      args: [-m, "not slow", --tb=short, -q]
+      
+    # All tests (pre-push)
+    - id: pytest-all
+      name: All tests
+      entry: uv run pytest
+      language: system
+      pass_filenames: false
+      always_run: true
+      stages: [push]
+      args: [--tb=short]
+      
+    # Test changed files only
+    - id: pytest-changed
+      name: Test changed files
+      entry: uv run pytest
+      language: system
+      files: \.py$
+      pass_filenames: true
+      args: [--tb=short, --co]
+      
+    # Test with coverage (manual)
+    - id: pytest-coverage
+      name: Test with coverage
+      entry: uv run pytest
+      language: system
+      pass_filenames: false
+      always_run: false
+      stages: [manual]
+      args: [--cov=src/{package_name}, --cov-report=term-missing]
+
+# Pytest markers configuration (add to pyproject.toml)
+# [tool.pytest.ini_options]
+# markers = [
+#     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+#     "integration: marks tests as integration tests",
+#     "unit: marks tests as unit tests",
+#     "performance: marks tests as performance tests",
+# ]
+# testpaths = ["tests"]
+# python_files = ["test_*.py", "*_test.py"]
+# asyncio_mode = "auto"
+
+# Customization Notes:
+# - Replace {package_name} with your package name
+# - Adjust test markers based on your test categories
+# - Configure timeout for long-running tests
+# - Consider running only affected tests on commit

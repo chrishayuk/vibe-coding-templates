@@ -1,0 +1,100 @@
+# GitHub Actions Test Suite Template
+# Comprehensive test execution across multiple environments
+
+name: Test Suite
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+env:
+  PYTHON_VERSION: '3.11'  # Default version
+
+jobs:
+  test:
+    name: Test Python ${{ matrix.python-version }} on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.9', '3.10', '3.11', '3.12']
+        os: [ubuntu-latest]
+        include:
+          # Test on other OS with latest Python only
+          - os: macos-latest
+            python-version: '3.11'
+          - os: windows-latest
+            python-version: '3.11'
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Install uv
+      uses: astral-sh/setup-uv@v3
+      
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+        
+    - name: Cache dependencies
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.cache/uv
+          .venv
+        key: ${{ runner.os }}-py${{ matrix.python-version }}-uv-${{ hashFiles('**/uv.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-py${{ matrix.python-version }}-uv-
+          
+    - name: Install dependencies
+      run: |
+        uv sync --dev
+        
+    - name: Run tests
+      run: |
+        uv run pytest tests/ \
+          --verbose \
+          --tb=short \
+          --junitxml=test-results.xml
+          
+    - name: Upload test results
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: test-results-${{ matrix.os }}-py${{ matrix.python-version }}
+        path: test-results.xml
+        
+  test-minimal:
+    name: Test minimal dependencies
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Install uv
+      uses: astral-sh/setup-uv@v3
+      
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.9'  # Test on minimum supported version
+        
+    - name: Install minimal dependencies
+      run: |
+        uv sync  # Without --dev flag
+        
+    - name: Run core tests
+      run: |
+        uv run pytest tests/ -m "not optional"
+
+# Customization Notes:
+# - Adjust Python versions based on project support
+# - Configure OS matrix based on deployment targets
+# - Add environment-specific tests (e.g., GPU tests)
+# - Consider splitting into unit/integration jobs for large suites
+# - Add test sharding for parallel execution

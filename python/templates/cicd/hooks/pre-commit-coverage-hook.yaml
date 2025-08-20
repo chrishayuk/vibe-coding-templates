@@ -1,0 +1,27 @@
+# Test Coverage Pre-commit Hook Template
+# Add this hook to your .pre-commit-config.yaml under the local repo section
+
+# Hook definition for test coverage check
+- id: test-coverage
+  name: Check test coverage
+  entry: uv run pytest --cov=src/{package_name} --cov-fail-under=80
+  language: system
+  pass_filenames: false
+  always_run: true
+  stages: [commit]
+
+# Optional: Detailed coverage report (manual stage)
+- id: test-coverage-report
+  name: Generate coverage report
+  entry: uv run pytest --cov=src/{package_name} --cov-report=term-missing --cov-fail-under=80
+  language: system
+  pass_filenames: false
+  always_run: false
+  stages: [manual]
+
+# Customization Notes:
+# - Replace {package_name} with your actual package name
+# - Adjust --cov-fail-under threshold (current: 80%)
+# - Add --cov-branch for branch coverage
+# - Add specific paths: --cov=src/{package_name}/module
+# - Run manual stage: pre-commit run test-coverage-report --hook-stage=manual

@@ -1,0 +1,47 @@
+# MyPy Pre-commit Hook Template
+# Static type checking for Python
+
+# Add this hook to your .pre-commit-config.yaml
+
+# Using mypy from pre-commit repository
+- repo: https://github.com/pre-commit/mirrors-mypy
+  rev: v1.11.0  # Update to latest version
+  hooks:
+    - id: mypy
+      name: Type check with mypy
+      additional_dependencies: [types-all]
+      args: [--strict, --ignore-missing-imports]
+
+# Alternative: Using local mypy installation
+- repo: local
+  hooks:
+    - id: mypy
+      name: Type check with mypy
+      entry: uv run mypy
+      language: system
+      types: [python]
+      pass_filenames: true
+      args: [--strict, --ignore-missing-imports, src/{package_name}]
+
+# Configuration (add to pyproject.toml)
+# [tool.mypy]
+# python_version = "3.11"
+# strict = true
+# warn_return_any = true
+# warn_unused_configs = true
+# disallow_untyped_defs = true
+# disallow_any_unimported = false
+# ignore_missing_imports = true
+# follow_imports = "normal"
+# show_error_codes = true
+# pretty = true
+# 
+# [[tool.mypy.overrides]]
+# module = "tests.*"
+# ignore_errors = true
+
+# Customization Notes:
+# - Replace {package_name} with your package name
+# - Add type stubs as needed in additional_dependencies
+# - Configure strictness level based on project maturity
+# - Consider using dmypy for faster incremental checking
