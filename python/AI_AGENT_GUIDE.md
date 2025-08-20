@@ -10,6 +10,14 @@ Quick reference for AI agents using vibe-coding-templates to bootstrap Python pr
 - **Pre-commit Hooks**: [docs/cicd/PRE_COMMIT.md](docs/cicd/PRE_COMMIT.md)
 - **Testing**: [docs/testing/TEST_COVERAGE.md](docs/testing/TEST_COVERAGE.md)
 
+## ⚠️ IMPORTANT: Required Components
+
+**Every Python project MUST include:**
+- ✅ GitHub Actions workflow (.github/workflows/test.yml)
+- ✅ Pre-commit configuration (.pre-commit-config.yaml)
+- ✅ Complete test suite in tests/
+- ✅ Proper package structure in src/
+
 ## Common Scenarios
 
 ### Scenario 1: Create New Python Project
@@ -17,10 +25,11 @@ Quick reference for AI agents using vibe-coding-templates to bootstrap Python pr
 **User**: "Create a Python project called data-processor"
 
 **Actions**:
-1. Follow [BOOTSTRAP.md](BOOTSTRAP.md) steps 1-9
-2. Use templates from `templates/` directory
-3. Replace placeholders: `{project_name}` → `data-processor`, `{package_name}` → `data_processor`
-4. Run verification commands from [docs/PACKAGE_MANAGEMENT.md](docs/PACKAGE_MANAGEMENT.md)
+1. Follow [BOOTSTRAP.md](BOOTSTRAP.md) ALL steps (1-8)
+2. **MUST create .github/workflows/test.yml** (Step 6)
+3. **MUST create .pre-commit-config.yaml** (Step 7)
+4. Replace placeholders: `{project_name}` → `data-processor`, `{package_name}` → `data_processor`
+5. Run ALL verification commands to ensure completeness
 
 ### Scenario 2: Add CI/CD to Existing Project
 

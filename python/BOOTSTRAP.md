@@ -2,18 +2,27 @@
 
 This guide helps AI agents bootstrap new Python projects using the vibe-coding-templates.
 
+## ⚠️ REQUIRED Components
+
+**Every Python project MUST include:**
+1. ✅ Project structure with src/ and tests/
+2. ✅ Package management with uv
+3. ✅ Testing with pytest
+4. ✅ **GitHub Actions workflows** (.github/workflows/test.yml)
+5. ✅ **Pre-commit hooks** (.pre-commit-config.yaml)
+6. ✅ Git repository initialization
+
 ## Quick Start Checklist
 
-When bootstrapping a Python project:
-
 ```markdown
-☐ 1. Create project structure
-☐ 2. Set up package management with uv (see docs/PACKAGE_MANAGEMENT.md)
-☐ 3. Configure testing with pytest  
-☐ 4. Set up GitHub Actions (see docs/cicd/GITHUB_ACTIONS.md)
-☐ 5. Configure pre-commit hooks (see docs/cicd/PRE_COMMIT.md)
-☐ 6. Initialize git repository
-☐ 7. Run verification tests
+☐ 1. Create project structure (src/, tests/, docs/, .github/workflows/)
+☐ 2. Create pyproject.toml with uv configuration
+☐ 3. Create source and test files
+☐ 4. Create Makefile and .gitignore
+☐ 5. CREATE GitHub Actions workflow (.github/workflows/test.yml) - REQUIRED
+☐ 6. CREATE pre-commit configuration (.pre-commit-config.yaml) - REQUIRED
+☐ 7. Initialize git and install dependencies
+☐ 8. Run ALL verification tests
 ```
 
 ## Step 1: Gather Project Information
@@ -99,22 +108,101 @@ def test_your_function():
 ### tests/conftest.py
 Add pytest fixtures as needed. See `docs/testing/TEST_COVERAGE.md` for testing best practices.
 
-## Step 6: Configure GitHub Actions
+## Step 6: Configure GitHub Actions (REQUIRED)
 
-Copy and customize workflow templates from `templates/cicd/workflows/`:
-- `github-actions-test.yaml` → `.github/workflows/test.yml`
-- Additional workflows as needed
+**⚠️ IMPORTANT: Always create GitHub Actions workflows for CI/CD**
+
+### Create `.github/workflows/test.yml`:
+
+```yaml
+name: Test Suite
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.9', '3.10', '3.11', '3.12']
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Install uv
+      uses: astral-sh/setup-uv@v3
+      
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+        
+    - name: Install dependencies
+      run: uv sync --dev
+        
+    - name: Run tests
+      run: uv run pytest tests/ --cov=src/{package_name}
+```
+
+**Note**: Replace `{package_name}` with your actual package name.
+
+For additional workflows, copy from `templates/cicd/workflows/`:
+- `github-actions-coverage.yaml` → `.github/workflows/coverage.yml`
+- `github-actions-lint.yaml` → `.github/workflows/lint.yml`
 
 See `docs/cicd/GITHUB_ACTIONS.md` for detailed setup instructions.
 
-## Step 7: Configure Pre-commit Hooks
+## Step 7: Configure Pre-commit Hooks (REQUIRED)
 
-Copy and customize hook configurations from `templates/cicd/hooks/`:
-- Use `pre-commit-ruff-hook.yaml` for linting/formatting
-- Use `pre-commit-mypy-hook.yaml` for type checking
-- Use `pre-commit-pytest-hook.yaml` for test execution
+**⚠️ IMPORTANT: Always set up pre-commit hooks for code quality**
 
-See `docs/cicd/PRE_COMMIT.md` for detailed configuration.
+### Create `.pre-commit-config.yaml`:
+
+```yaml
+repos:
+  # Ruff - Fast Python linter and formatter
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.8.0
+    hooks:
+      - id: ruff
+        args: [--fix, --exit-non-zero-on-fix]
+      - id: ruff-format
+
+  # Mypy - Type checking
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.11.2
+    hooks:
+      - id: mypy
+        additional_dependencies: [types-all]
+        args: [--ignore-missing-imports]
+
+  # Standard hooks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
+      - id: check-merge-conflict
+      - id: check-toml
+
+  # Local pytest hook (runs on push)
+  - repo: local
+    hooks:
+      - id: pytest
+        name: Run pytest
+        entry: uv run pytest
+        language: system
+        pass_filenames: false
+        stages: [push]
+```
+
+For additional hook configurations, see `templates/cicd/hooks/` and `docs/cicd/PRE_COMMIT.md`.
 
 ## Step 8: Initialize and Install
 
@@ -172,12 +260,44 @@ This bootstrap guide references:
 - **Pre-commit Hooks**: [docs/cicd/PRE_COMMIT.md](docs/cicd/PRE_COMMIT.md)
 - **Testing**: [docs/testing/TEST_COVERAGE.md](docs/testing/TEST_COVERAGE.md)
 
+## ⚠️ CRITICAL: Verification Checklist
+
+**DO NOT consider the project complete until ALL of these pass:**
+
+```bash
+# 1. Check project structure
+ls -la .github/workflows/  # MUST contain test.yml
+ls -la .pre-commit-config.yaml  # MUST exist
+ls -la src/ tests/ docs/  # MUST exist
+
+# 2. Verify dependencies install
+uv sync --dev  # MUST complete without errors
+
+# 3. Run tests
+uv run pytest  # MUST pass all tests
+
+# 4. Check code quality
+uv run ruff check .  # MUST pass
+uv run ruff format --check .  # MUST pass
+uv run mypy src/  # SHOULD pass (may need configuration)
+
+# 5. Verify pre-commit hooks
+pre-commit run --all-files  # MUST pass
+
+# 6. Check git
+git status  # MUST show initialized repository
+```
+
 ## Success Criteria
 
-Bootstrap is successful when:
-- ✅ All directories created
-- ✅ `uv sync --dev` completes
-- ✅ `uv run pytest` passes
-- ✅ `uv run ruff check .` passes
-- ✅ `pre-commit run --all-files` passes
-- ✅ Git repository initialized
+✅ **Project is ONLY complete when:**
+- All directories exist (including .github/workflows/)
+- GitHub Actions workflow file exists (.github/workflows/test.yml)
+- Pre-commit config exists (.pre-commit-config.yaml)
+- All dependencies install successfully
+- All tests pass
+- All linting passes
+- Pre-commit hooks are installed and working
+- Git repository is initialized
+
+**Missing any of these means the bootstrap is INCOMPLETE!**
