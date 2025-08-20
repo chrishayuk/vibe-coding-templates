@@ -177,8 +177,10 @@ repos:
     rev: v1.11.2
     hooks:
       - id: mypy
-        additional_dependencies: [types-all]
+        # Add project-specific type stubs as needed
+        additional_dependencies: []  # Add deps like: [types-requests, click]
         args: [--ignore-missing-imports]
+        files: ^src/  # Only check src directory
 
   # Standard hooks
   - repo: https://github.com/pre-commit/pre-commit-hooks
@@ -202,15 +204,17 @@ repos:
         stages: [push]
 ```
 
+**Note about optional hooks:**
+- **Detect-secrets**: If using, run `detect-secrets scan > .secrets.baseline` first
+- **Markdown linting**: Add language specifiers to code blocks (e.g., ` ```python` not just ` ``` `)
+
 For additional hook configurations, see `templates/cicd/hooks/` and `docs/cicd/PRE_COMMIT.md`.
 
 ## Step 8: Initialize and Install
 
 ```bash
-# Initialize git
+# Initialize git FIRST (required for pre-commit)
 git init
-git add .
-git commit -m "Initial project structure"
 
 # Install uv (if not present)
 curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -220,6 +224,17 @@ uv sync --dev
 
 # Install pre-commit hooks
 uv run pre-commit install
+
+# Fix any initial linting issues
+uv run ruff check . --fix
+uv run ruff format .
+
+# Stage and verify with pre-commit
+git add .
+pre-commit run --all-files  # May need to run twice if files are fixed
+
+# Initial commit
+git commit -m "Initial project structure"
 ```
 
 ## Step 9: Verification
@@ -288,6 +303,32 @@ pre-commit run --all-files  # MUST pass
 git status  # MUST show initialized repository
 ```
 
+## Common Issues & Fixes
+
+### Linting errors on first run
+```bash
+# Fix automatically with ruff
+uv run ruff check . --fix
+uv run ruff format .
+```
+
+### Pre-commit hook failures
+```bash
+# Let pre-commit fix what it can
+git add -A
+pre-commit run --all-files
+# Then commit the fixes
+```
+
+### Mypy additional_dependencies error
+- Don't use `types-all` (it's deprecated)
+- Add specific type stubs for your dependencies
+- Example: `additional_dependencies: [types-requests, click]`
+
+### Markdown linting errors
+- Use language specifiers in code blocks: ` ```python` not ` ``` `
+- Or use ` ```text` for non-code content
+
 ## Success Criteria
 
 ✅ **Project is ONLY complete when:**
@@ -296,7 +337,7 @@ git status  # MUST show initialized repository
 - Pre-commit config exists (.pre-commit-config.yaml)
 - All dependencies install successfully
 - All tests pass
-- All linting passes
+- All linting passes (after running `ruff --fix`)
 - Pre-commit hooks are installed and working
 - Git repository is initialized
 

@@ -127,3 +127,14 @@ See troubleshooting sections in:
 3. **Test incrementally** - Verify each step works
 4. **Use templates** - Start from `templates/` directory
 5. **Check existing patterns** - Look at how things are done in the codebase
+6. **Fix linting first** - Run `uv run ruff check . --fix` before committing
+7. **Initialize git early** - Required for pre-commit hooks to work
+8. **Run pre-commit twice** - First run may fix issues, second run verifies
+
+## Common Bootstrap Gotchas
+
+- **Mypy types-all**: Don't use it, add specific type stubs instead
+- **Markdown code blocks**: Always specify language (` ```python`, ` ```yaml`, ` ```text`)
+- **Pre-commit stages**: Some hooks warn about deprecated stage names - this is OK
+- **Initial linting**: New code often needs `ruff --fix` on first run
+- **Git init timing**: Must init git before installing pre-commit hooks
