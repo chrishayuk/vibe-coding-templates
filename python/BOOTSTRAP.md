@@ -45,6 +45,9 @@ mkdir -p src/{package_name} tests docs scripts .github/workflows
 
 ### pyproject.toml
 
+⚠️ **IMPORTANT: Read `docs/PACKAGE_MANAGEMENT.md` BEFORE implementing!**
+The linked documentation contains critical details about uv commands, lock files, and best practices.
+
 Use the template structure from `docs/PACKAGE_MANAGEMENT.md` with these essential sections:
 
 ```toml
@@ -69,9 +72,16 @@ dev-dependencies = [
 ]
 ```
 
-See full configuration options in `docs/PACKAGE_MANAGEMENT.md`.
+**REQUIRED ACTION**: Open and read the full configuration options in `docs/PACKAGE_MANAGEMENT.md` to understand:
+- Complete pyproject.toml structure
+- Lock file management
+- Common uv commands
+- Best practices and troubleshooting
 
 ### Makefile
+
+**REQUIRED ACTION**: Read the "Makefile Integration" section in `docs/PACKAGE_MANAGEMENT.md` first!
+This section contains the complete Makefile template with all necessary targets.
 
 Create a Makefile using the template from `docs/PACKAGE_MANAGEMENT.md` (Section: Makefile Integration).
 
@@ -96,6 +106,11 @@ Create a minimal main module with at least one function to test.
 
 ## Step 5: Set Up Testing
 
+**BEFORE PROCEEDING**: If testing setup is new to you, read `docs/testing/TEST_COVERAGE.md` for:
+- Testing best practices
+- Coverage configuration
+- pytest fixtures and patterns
+
 ### tests/test_main.py
 Create basic tests that import and test your package:
 ```python
@@ -106,7 +121,8 @@ def test_your_function():
 ```
 
 ### tests/conftest.py
-Add pytest fixtures as needed. See `docs/testing/TEST_COVERAGE.md` for testing best practices.
+**ACTION**: Read `docs/testing/TEST_COVERAGE.md` for pytest fixtures and testing patterns.
+Add pytest fixtures as needed based on the documentation.
 
 ## Step 6: Configure GitHub Actions (REQUIRED)
 
@@ -150,11 +166,13 @@ jobs:
 
 **Note**: Replace `{package_name}` with your actual package name.
 
-For additional workflows, copy from `templates/cicd/workflows/`:
-- `github-actions-coverage.yaml` → `.github/workflows/coverage.yml`
-- `github-actions-lint.yaml` → `.github/workflows/lint.yml`
+For additional workflows:
+1. **FIRST**: Read `docs/cicd/GITHUB_ACTIONS.md` for detailed setup instructions
+2. **THEN**: Copy from `templates/cicd/workflows/`:
+   - `github-actions-coverage.yaml` → `.github/workflows/coverage.yml`
+   - `github-actions-lint.yaml` → `.github/workflows/lint.yml`
 
-See `docs/cicd/GITHUB_ACTIONS.md` for detailed setup instructions.
+⚠️ The documentation contains important details about matrix testing, caching, and workflow optimization.
 
 ## Step 7: Configure Pre-commit Hooks (REQUIRED)
 
@@ -208,7 +226,11 @@ repos:
 - **Detect-secrets**: If using, run `detect-secrets scan > .secrets.baseline` first
 - **Markdown linting**: Add language specifiers to code blocks (e.g., ` ```python` not just ` ``` `)
 
-For additional hook configurations, see `templates/cicd/hooks/` and `docs/cicd/PRE_COMMIT.md`.
+For additional hook configurations:
+1. **REQUIRED**: Read `docs/cicd/PRE_COMMIT.md` for hook configuration details
+2. **THEN**: Check `templates/cicd/hooks/` for additional hook examples
+
+The documentation explains hook stages, custom hooks, and troubleshooting.
 
 ## Step 8: Initialize and Install
 
@@ -239,7 +261,9 @@ git commit -m "Initial project structure"
 
 ## Step 9: Verification
 
-Run these commands to verify setup (from `docs/PACKAGE_MANAGEMENT.md`):
+**IMPORTANT**: These commands are from `docs/PACKAGE_MANAGEMENT.md` - read that document if any command fails!
+
+Run these commands to verify setup:
 
 ```bash
 # Package management
@@ -267,13 +291,27 @@ pre-commit run --all-files
 | `{description}` | Project description | `Data processing tool` |
 | `{python_version}` | Python version | `3.11` |
 
-## Using Existing Documentation
+## ⚠️ CRITICAL: Read Referenced Documentation
 
-This bootstrap guide references:
-- **Package Management**: [docs/PACKAGE_MANAGEMENT.md](docs/PACKAGE_MANAGEMENT.md)
-- **GitHub Actions**: [docs/cicd/GITHUB_ACTIONS.md](docs/cicd/GITHUB_ACTIONS.md)
-- **Pre-commit Hooks**: [docs/cicd/PRE_COMMIT.md](docs/cicd/PRE_COMMIT.md)
-- **Testing**: [docs/testing/TEST_COVERAGE.md](docs/testing/TEST_COVERAGE.md)
+**AI AGENTS MUST READ these documents when performing the related steps:**
+
+- **Package Management** (Step 3, 8, 9): [docs/PACKAGE_MANAGEMENT.md](docs/PACKAGE_MANAGEMENT.md)
+  - WHEN: Creating pyproject.toml, Makefile, running uv commands
+  - WHY: Contains complete templates, command reference, troubleshooting
+  
+- **GitHub Actions** (Step 6): [docs/cicd/GITHUB_ACTIONS.md](docs/cicd/GITHUB_ACTIONS.md)
+  - WHEN: Setting up CI/CD workflows
+  - WHY: Explains matrix testing, caching, workflow optimization
+  
+- **Pre-commit Hooks** (Step 7): [docs/cicd/PRE_COMMIT.md](docs/cicd/PRE_COMMIT.md)
+  - WHEN: Configuring pre-commit hooks
+  - WHY: Details hook stages, custom hooks, troubleshooting
+  
+- **Testing** (Step 5): [docs/testing/TEST_COVERAGE.md](docs/testing/TEST_COVERAGE.md)
+  - WHEN: Setting up tests and coverage
+  - WHY: Best practices, fixtures, coverage configuration
+
+**DO NOT skip reading these documents - they contain critical implementation details!**
 
 ## ⚠️ CRITICAL: Verification Checklist
 

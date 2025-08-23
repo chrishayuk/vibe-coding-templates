@@ -28,8 +28,13 @@ Complete Python project templates with:
 
 1. Navigate to the Python templates: `python/`
 2. Follow [python/BOOTSTRAP.md](python/BOOTSTRAP.md) systematically
-3. Use templates from `python/templates/`
-4. Reference documentation in `python/docs/`
+3. **CRITICAL**: Read the referenced documentation when performing each step:
+   - **Step 3 (pyproject.toml, Makefile)**: READ [python/docs/PACKAGE_MANAGEMENT.md](python/docs/PACKAGE_MANAGEMENT.md)
+   - **Step 5 (Testing)**: READ [python/docs/testing/TEST_COVERAGE.md](python/docs/testing/TEST_COVERAGE.md)
+   - **Step 6 (GitHub Actions)**: READ [python/docs/cicd/GITHUB_ACTIONS.md](python/docs/cicd/GITHUB_ACTIONS.md)
+   - **Step 7 (Pre-commit)**: READ [python/docs/cicd/PRE_COMMIT.md](python/docs/cicd/PRE_COMMIT.md)
+4. Use templates from `python/templates/`
+5. Always run Step 9 verification commands to ensure completeness
 
 ### Key Python Resources:
 - **Bootstrap Guide**: [python/BOOTSTRAP.md](python/BOOTSTRAP.md)
@@ -40,12 +45,16 @@ Complete Python project templates with:
 
 ## Important Principles for AI Agents
 
-1. **Use language-specific guides** - Each language has its own folder with tailored documentation
-2. **Follow existing documentation** - Don't recreate what's already documented
-3. **Use templates as starting points** - Customize based on user needs
-4. **Verify everything works** - Always run verification commands before declaring success
+1. **READ DOCUMENTATION FIRST** - When BOOTSTRAP.md references a doc (hyperlink or path), READ IT before implementing that step
+2. **Use language-specific guides** - Each language has its own folder with tailored documentation
+3. **Follow existing documentation** - Don't recreate what's already documented, use the templates provided
+4. **Use templates as starting points** - Customize based on user needs
+5. **Verify everything works** - Always run verification commands (Step 9 in BOOTSTRAP.md) before declaring success
+6. **Package Management is Critical** - ALWAYS read [python/docs/PACKAGE_MANAGEMENT.md](python/docs/PACKAGE_MANAGEMENT.md) to understand uv commands, lock files, and best practices
 
 ## Common Commands for Python Projects
+
+⚠️ **IMPORTANT**: These are quick reference commands. For complete details, AI agents MUST read [python/docs/PACKAGE_MANAGEMENT.md](python/docs/PACKAGE_MANAGEMENT.md).
 
 All Python projects use `uv` for package management:
 
@@ -64,7 +73,12 @@ uv run ruff format .
 uv run mypy src/
 ```
 
-See [python/docs/PACKAGE_MANAGEMENT.md](python/docs/PACKAGE_MANAGEMENT.md) for complete command reference.
+**AI AGENTS**: You MUST read [python/docs/PACKAGE_MANAGEMENT.md](python/docs/PACKAGE_MANAGEMENT.md) for:
+- Complete command reference
+- Lock file management (`uv.lock`)
+- Troubleshooting common issues
+- Best practices and DO's/DON'Ts
+- Migration from pip
 
 ## Template Placeholders
 
