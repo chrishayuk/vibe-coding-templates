@@ -80,10 +80,56 @@ dev-dependencies = [
 
 ### Makefile
 
-**REQUIRED ACTION**: Read the "Makefile Integration" section in `docs/PACKAGE_MANAGEMENT.md` first!
-This section contains the complete Makefile template with all necessary targets.
+Create a Makefile with these essential targets:
 
-Create a Makefile using the template from `docs/PACKAGE_MANAGEMENT.md` (Section: Makefile Integration).
+```makefile
+.PHONY: help install dev-install test test-cov lint format typecheck clean
+
+# Default target
+help:
+	@echo "Available targets:"
+	@echo "  install      Install production dependencies"
+	@echo "  dev-install  Install all dependencies including dev"
+	@echo "  test         Run tests"
+	@echo "  test-cov     Run tests with coverage"
+	@echo "  lint         Run linting checks"
+	@echo "  format       Format code"
+	@echo "  typecheck    Run type checking"
+	@echo "  clean        Clean up generated files"
+
+# Install dependencies
+install:
+	uv sync
+
+dev-install:
+	uv sync --dev
+
+# Testing
+test:
+	uv run pytest
+
+test-cov:
+	uv run pytest --cov=src/{package_name} --cov-report=term-missing
+
+# Code quality
+lint:
+	uv run ruff check .
+
+format:
+	uv run ruff format .
+	uv run black .
+
+typecheck:
+	uv run mypy src/
+
+# Cleanup
+clean:
+	rm -rf .pytest_cache .coverage htmlcov .mypy_cache
+	find . -type d -name "__pycache__" -exec rm -rf {} +
+	find . -type f -name "*.pyc" -delete
+```
+
+**Note**: Replace `{package_name}` with your actual package name. See `docs/PACKAGE_MANAGEMENT.md` for additional Makefile patterns and advanced usage.
 
 ### .gitignore
 
@@ -121,7 +167,7 @@ def test_your_function():
 ```
 
 ### tests/conftest.py
-**ACTION**: Read `docs/testing/TEST_COVERAGE.md` for pytest fixtures and testing patterns.
+**ACTION**: Read `docs/testing/TEST_COVERAGE.md` and `docs/testing/UNIT_TESTING.md` for pytest fixtures and testing patterns.
 Add pytest fixtures as needed based on the documentation.
 
 ## Step 6: Configure GitHub Actions (REQUIRED)
@@ -166,11 +212,12 @@ jobs:
 
 **Note**: Replace `{package_name}` with your actual package name.
 
-For additional workflows:
-1. **FIRST**: Read `docs/cicd/GITHUB_ACTIONS.md` for detailed setup instructions
-2. **THEN**: Copy from `templates/cicd/workflows/`:
-   - `github-actions-coverage.yaml` → `.github/workflows/coverage.yml`
-   - `github-actions-lint.yaml` → `.github/workflows/lint.yml`
+For additional workflows (optional):
+1. Read `docs/cicd/GITHUB_ACTIONS.md` for detailed setup instructions
+2. Copy workflow templates from `templates/cicd/workflows/` as needed:
+   - `github-actions-coverage.yaml` for coverage reporting
+   - `github-actions-lint.yaml` for additional linting
+   - `github-actions-test.yaml` for comprehensive testing
 
 ⚠️ The documentation contains important details about matrix testing, caching, and workflow optimization.
 
@@ -226,9 +273,12 @@ repos:
 - **Detect-secrets**: If using, run `detect-secrets scan > .secrets.baseline` first
 - **Markdown linting**: Add language specifiers to code blocks (e.g., ` ```python` not just ` ``` `)
 
-For additional hook configurations:
-1. **REQUIRED**: Read `docs/cicd/PRE_COMMIT.md` for hook configuration details
-2. **THEN**: Check `templates/cicd/hooks/` for additional hook examples
+For additional hook configurations (optional):
+1. Read `docs/cicd/PRE_COMMIT.md` for hook configuration details
+2. Check `templates/cicd/hooks/` for additional hook examples:
+   - `pre-commit-mypy-hook.yaml` for type checking configuration
+   - `pre-commit-coverage-hook.yaml` for coverage thresholds
+   - `pre-commit-secrets-hook.yaml` for secret detection
 
 The documentation explains hook stages, custom hooks, and troubleshooting.
 
@@ -253,7 +303,7 @@ uv run ruff format .
 
 # Stage and verify with pre-commit
 git add .
-pre-commit run --all-files  # May need to run twice if files are fixed
+uv run pre-commit run --all-files  # May need to run twice if files are fixed
 
 # Initial commit
 git commit -m "Initial project structure"
@@ -279,7 +329,7 @@ uv run ruff format --check .
 uv run mypy src/
 
 # Pre-commit
-pre-commit run --all-files
+uv run pre-commit run --all-files
 ```
 
 ## Template Variables Reference
@@ -307,7 +357,9 @@ pre-commit run --all-files
   - WHEN: Configuring pre-commit hooks
   - WHY: Details hook stages, custom hooks, troubleshooting
   
-- **Testing** (Step 5): [docs/testing/TEST_COVERAGE.md](docs/testing/TEST_COVERAGE.md)
+- **Testing** (Step 5): 
+  - [docs/testing/TEST_COVERAGE.md](docs/testing/TEST_COVERAGE.md) - Coverage setup and targets
+  - [docs/testing/UNIT_TESTING.md](docs/testing/UNIT_TESTING.md) - Testing patterns and fixtures
   - WHEN: Setting up tests and coverage
   - WHY: Best practices, fixtures, coverage configuration
 
@@ -335,7 +387,7 @@ uv run ruff format --check .  # MUST pass
 uv run mypy src/  # SHOULD pass (may need configuration)
 
 # 5. Verify pre-commit hooks
-pre-commit run --all-files  # MUST pass
+uv run pre-commit run --all-files  # MUST pass
 
 # 6. Check git
 git status  # MUST show initialized repository
@@ -354,7 +406,7 @@ uv run ruff format .
 ```bash
 # Let pre-commit fix what it can
 git add -A
-pre-commit run --all-files
+uv run pre-commit run --all-files
 # Then commit the fixes
 ```
 

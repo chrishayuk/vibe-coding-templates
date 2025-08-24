@@ -6,40 +6,39 @@ GitHub Actions provides continuous integration and deployment automation. This g
 
 ## Quick Start
 
-1. **Check Project Requirements**
-   ```yaml
-   # Review manifests/project-workflows.yaml for required workflows
-   cat manifests/manifests/project-workflows.yaml
-   ```
-
-2. **Create Workflow Directory**
+1. **Create Workflow Directory**
    ```bash
    mkdir -p .github/workflows
    ```
 
-3. **Install Required Workflows**
-   Use the templates specified in `manifests/project-workflows.yaml` to create your workflow files.
+2. **Choose Your Workflows**
+   Select from the available templates based on your project needs:
+   - **Required**: Test suite for all projects
+   - **Recommended**: Coverage reporting and linting
+   - **Optional**: Benchmarks, releases, documentation
 
-## Project Workflow Configuration
+3. **Copy and Customize Templates**
+   Copy the relevant templates from `templates/cicd/workflows/` and customize for your project.
 
-Your project's workflow requirements are defined in `manifests/project-workflows.yaml`. This file specifies:
-- Which workflows are required vs optional
-- Template URLs for each workflow
-- Configuration parameters
-- Required secrets
-- Trigger conditions
+## Choosing Workflows for Your Project
 
-### Example Workflow Manifest
-```yaml
-workflows:
-  - id: test-suite
-    name: Test Suite
-    template: <template-url>
-    required: true
-    config:
-      python_versions: ['3.11']
-      package_name: {package_name}
-```
+### Essential Workflows (Required)
+- **Test Suite**: Run tests across Python versions
+  - Template: `github-actions-test.yaml`
+  - Purpose: Ensure code works on supported platforms
+
+### Recommended Workflows
+- **Coverage**: Track test coverage metrics
+  - Template: `github-actions-coverage.yaml`
+  - Purpose: Maintain code quality standards
+- **Linting**: Automated code quality checks
+  - Template: `github-actions-lint.yaml`
+  - Purpose: Enforce coding standards
+
+### Optional Workflows
+- **Benchmarks**: Performance testing
+- **Release**: PyPI publishing automation
+- **Documentation**: Auto-generate docs
 
 ## Available Workflow Templates
 
@@ -60,29 +59,34 @@ workflows:
 
 ## Setting Up Workflows
 
-### Step 1: Read Project Requirements
-```bash
-# Check which workflows your project needs
-cat manifests/project-workflows.yaml | grep "required: true"
-```
+### Step 1: Choose Your Workflows
+Decide which workflows you need:
+- **Minimum**: Test suite (`github-actions-test.yaml`)
+- **Recommended**: Add coverage and linting
+- **Full CI/CD**: Include all relevant workflows
 
-### Step 2: Download Templates
-For each required workflow in `manifests/project-workflows.yaml`:
+### Step 2: Copy Templates
 ```bash
-# Example: Download test workflow template
-curl -o .github/workflows/test.yml <template-url>
+# Copy test workflow (required)
+cp templates/cicd/workflows/github-actions-test.yaml .github/workflows/test.yml
+
+# Copy coverage workflow (recommended)
+cp templates/cicd/workflows/github-actions-coverage.yaml .github/workflows/coverage.yml
+
+# Copy other workflows as needed
 ```
 
 ### Step 3: Customize Configuration
-Replace placeholders in downloaded workflows:
+Replace placeholders in your workflow files:
 - `{package_name}` → Your package name
 - `{python_version}` → Your Python version(s)
-- Update triggers based on your branch strategy
+- Update branch names in triggers
+- Adjust matrix strategy for your needs
 
-### Step 4: Configure Secrets
-Add required secrets to your GitHub repository:
+### Step 4: Configure Secrets (if needed)
+For workflows requiring secrets:
 1. Go to Settings → Secrets → Actions
-2. Add secrets listed in `manifests/project-workflows.yaml`
+2. Add required secrets (e.g., `PYPI_API_TOKEN` for releases)
 
 ## Workflow Triggers
 
@@ -166,13 +170,15 @@ jobs:
 
 ## Status Badges
 
-Add badges from `manifests/project-workflows.yaml` to your README:
+Add badges to your README to show workflow status:
 
 ```markdown
-![Tests](badge-url)
-![Coverage](badge-url)
-![Python](badge-url)
+![Tests](https://github.com/{username}/{repo}/workflows/Test%20Suite/badge.svg)
+![Coverage](https://codecov.io/gh/{username}/{repo}/branch/main/graph/badge.svg)
+![Python](https://img.shields.io/badge/python-3.9%20%7C%203.10%20%7C%203.11%20%7C%203.12-blue)
 ```
+
+Replace `{username}` and `{repo}` with your GitHub details.
 
 ## Troubleshooting
 
@@ -213,8 +219,8 @@ permissions:
 ### Customization Notes
 
 When using this guide:
-1. Always check `manifests/project-workflows.yaml` first
-2. Download only required workflows
-3. Customize based on project needs
-4. Set up secrets before running workflows
+1. Start with the test workflow (required for all projects)
+2. Add additional workflows based on project needs
+3. Customize templates for your specific requirements
+4. Set up secrets before running workflows that need them
 5. Test workflows on feature branches first
