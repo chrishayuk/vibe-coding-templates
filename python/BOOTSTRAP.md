@@ -93,59 +93,29 @@ dev-dependencies = [
 
 ### Makefile
 
-Create a Makefile with these essential targets:
+📚 **Use the comprehensive Makefile template: [templates/Makefile](templates/Makefile)**
 
-```makefile
-.PHONY: help install dev-install test test-cov lint format typecheck clean
+Copy the Makefile template to your project and replace `{{package_name}}` with your actual package name.
 
-# Default target
-help:
-	@echo "Available targets:"
-	@echo "  install      Install production dependencies"
-	@echo "  dev-install  Install all dependencies including dev"
-	@echo "  test         Run tests"
-	@echo "  test-cov     Run tests with coverage"
-	@echo "  lint         Run linting checks"
-	@echo "  format       Format code"
-	@echo "  typecheck    Run type checking"
-	@echo "  clean        Clean up generated files"
+```bash
+# Copy the Makefile template
+cp ../templates/Makefile .
 
-# Install dependencies
-install:
-	uv sync
-
-dev-install:
-	uv sync --dev
-
-# Testing
-test:
-	uv run pytest
-
-test-cov:
-	uv run pytest --cov=src/{package_name} --cov-report=term-missing
-
-# Code quality
-lint:
-	uv run ruff check .
-
-format:
-	# Run isort first (with black profile), then black
-	# See docs/testing/CODE_QUALITY.md for why order matters
-	uv run isort . --profile black
-	uv run black .
-	uv run ruff format .
-
-typecheck:
-	uv run mypy src/
-
-# Cleanup
-clean:
-	rm -rf .pytest_cache .coverage htmlcov .mypy_cache
-	find . -type d -name "__pycache__" -exec rm -rf {} +
-	find . -type f -name "*.pyc" -delete
+# Replace placeholder with your package name (example for macOS/Linux)
+sed -i '' 's/{{package_name}}/your_package_name/g' Makefile  # macOS
+# OR
+sed -i 's/{{package_name}}/your_package_name/g' Makefile     # Linux
 ```
 
-**Note**: Replace `{package_name}` with your actual package name. See `docs/PACKAGE_MANAGEMENT.md` for additional Makefile patterns and advanced usage.
+The Makefile includes all common development tasks:
+- **Installation**: `make install`, `make dev-install`
+- **Testing**: `make test`, `make test-cov`, `make test-watch`
+- **Code Quality**: `make lint`, `make format`, `make typecheck`
+- **Cleaning**: `make clean`, `make clean-all`
+- **CI/CD**: `make qa`, `make ready`, `make ci-test`
+- **And many more** - run `make help` to see all available targets
+
+📚 **See also**: [docs/PACKAGE_MANAGEMENT.md#makefile-integration](docs/PACKAGE_MANAGEMENT.md) for detailed documentation.
 
 ### .gitignore
 
@@ -153,9 +123,10 @@ Standard Python gitignore including:
 - `__pycache__/`, `*.py[cod]`, `.pytest_cache/`
 - `.venv/`, `venv/`, `.coverage`, `htmlcov/`
 - `.idea/`, `.vscode/`, `.DS_Store`
+- `.ruff_cache/`, `.mypy_cache/`
 - `uv.lock` (if desired for development)
 
-## Step 4: Create README and Initial Source Files
+## Step 4: Create Documentation and Initial Source Files
 
 ### README.md
 ```markdown
@@ -181,9 +152,56 @@ uv run {package_name}
 make test         # Run tests
 make lint         # Run linting
 make format       # Format code
-make all          # Run all checks
+make check        # Run all checks
 ```
 ```
+
+### llms.txt (AI Agent Documentation)
+
+📚 **Use the llms.txt template: [templates/llms.txt](templates/llms.txt)**  
+📚 **Documentation: [docs/LLMS_TXT.md](docs/LLMS_TXT.md)**
+
+Create an `llms.txt` file to help AI agents understand your project:
+
+```bash
+# Copy the template
+cp ../templates/llms.txt .
+
+# Edit and replace placeholders with your project details
+# See docs/LLMS_TXT.md for detailed guidance on each section
+```
+
+The llms.txt file provides AI agents with:
+- Project overview and key features
+- Quick start code examples
+- Project structure visualization
+- Common development commands
+- Key API references
+
+**Note**: Read [docs/LLMS_TXT.md](docs/LLMS_TXT.md) for best practices and examples.
+
+### CLAUDE.md (Claude Code Instructions)
+
+📚 **Use the CLAUDE.md template: [templates/CLAUDE.md](templates/CLAUDE.md)**
+
+Create a `CLAUDE.md` file with project-specific instructions for Claude Code:
+
+```bash
+# Copy the template
+cp ../templates/CLAUDE.md .
+
+# Replace placeholders with your project details
+sed -i '' 's/{{project_name}}/your_project_name/g' CLAUDE.md  # macOS
+sed -i '' 's/{{package_name}}/your_package_name/g' CLAUDE.md
+# Add any project-specific notes
+```
+
+The CLAUDE.md file helps Claude Code understand:
+- Project standards and guidelines
+- Common development commands
+- Testing requirements
+- Code style preferences
+- Git workflow
 
 ### src/{package_name}/__init__.py
 ```python
@@ -223,10 +241,10 @@ Add pytest fixtures as needed based on the documentation.
 
 **⚠️ IMPORTANT: Always create GitHub Actions workflows for CI/CD**
 
-### Create `.github/workflows/test.yml`:
+### Create `.github/workflows/ci.yml`:
 
 ```yaml
-name: Test Suite
+name: CI
 
 on:
   push:
@@ -234,39 +252,135 @@ on:
   pull_request:
     branches: [ main ]
 
+permissions:
+  contents: read
+
 jobs:
-  test:
-    runs-on: ubuntu-latest
+  ci:
+    runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
-        python-version: ['3.9', '3.10', '3.11', '3.12']
-    
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python-version: ["3.10", "3.11", "3.12"]
+
     steps:
     - uses: actions/checkout@v4
     
-    - name: Install uv
-      uses: astral-sh/setup-uv@v3
-      
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
-        
+    
+    - name: Install uv
+      uses: astral-sh/setup-uv@v3
+      with:
+        enable-cache: true
+        cache-dependency-glob: "pyproject.toml"
+    
     - name: Install dependencies
-      run: uv sync --dev
-        
-    - name: Run tests
-      run: uv run pytest tests/ --cov=src/{package_name}
+      run: |
+        uv sync --dev
+    
+    - name: Run linting checks
+      run: |
+        uv run ruff check src/ tests/
+        uv run black --check src/ tests/
+    
+    - name: Run type checking
+      run: |
+        uv run mypy src/
+    
+    - name: Run tests with coverage
+      run: |
+        uv run pytest tests/ -v --cov=src/{package_name} --cov-report=xml --cov-report=term-missing
+    
+    - name: Upload coverage to Codecov
+      if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.11'
+      uses: codecov/codecov-action@v4
+      with:
+        file: ./coverage.xml
+        flags: unittests
+        name: codecov-umbrella
+        fail_ci_if_error: false
 ```
 
 **Note**: Replace `{package_name}` with your actual package name.
 
+### Optional: Package Publishing Workflow
+
+For packages that will be published to PyPI, create `.github/workflows/publish.yml`:
+
+```yaml
+name: Publish to PyPI
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      test_pypi:
+        description: 'Publish to TestPyPI instead of PyPI'
+        required: false
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+  id-token: write  # Required for trusted publishing
+
+jobs:
+  build:
+    name: Build distribution packages
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    
+    - name: Install uv
+      uses: astral-sh/setup-uv@v3
+    
+    - name: Build package
+      run: |
+        uv build
+    
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: python-package-distributions
+        path: dist/
+
+  publish-pypi:
+    name: Publish to PyPI
+    if: github.event_name == 'release'
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/project/{package_name}/
+    
+    steps:
+    - name: Download artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: python-package-distributions
+        path: dist/
+    
+    - name: Publish to PyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
+```
+
 For additional workflows (optional):
 1. Read `docs/cicd/GITHUB_ACTIONS.md` for detailed setup instructions
 2. Copy workflow templates from `templates/cicd/workflows/` as needed:
+   - `publish.yml` for PyPI publishing (shown above)
    - `github-actions-coverage.yaml` for coverage reporting
    - `github-actions-lint.yaml` for additional linting
-   - `github-actions-test.yaml` for comprehensive testing
 
 ⚠️ The documentation contains important details about matrix testing, caching, and workflow optimization.
 
@@ -371,15 +485,40 @@ git commit -m "Initial project structure"
 
 **IMPORTANT**: These commands are from `docs/PACKAGE_MANAGEMENT.md` - read that document if any command fails!
 
+### Running the Application
+
+**⚠️ CRITICAL: Always use `uv run python` to execute Python code, NOT plain `python`**
+
+```bash
+# ✅ CORRECT - Uses project's virtual environment
+uv run python src/{package_name}/main.py
+uv run python -m {package_name}.main
+
+# ❌ INCORRECT - May use system Python or wrong environment
+python src/{package_name}/main.py  # DO NOT USE
+python -m {package_name}.main      # DO NOT USE
+```
+
+### Verification Commands
+
 Run these commands to verify setup:
 
 ```bash
+# Run the application (ALWAYS use uv run python)
+uv run python src/{package_name}/main.py
+
 # Package management
 uv --version
 uv pip list
 
-# Testing
-uv run pytest
+# Testing with coverage (IMPORTANT: Check coverage meets minimum requirements)
+uv run pytest --cov=src/{package_name} --cov-report=term-missing
+
+# ⚠️ Coverage Requirements (from docs/testing/TEST_COVERAGE.md):
+# - Minimum overall: 80%
+# - Critical modules: 90-100%
+# - New code: 95%+
+# If coverage is below 80%, add more tests before considering bootstrap complete
 
 # Code quality (see docs/testing/CODE_QUALITY.md for details)
 uv run isort . --check-only --profile black
@@ -429,6 +568,11 @@ uv run pre-commit run --all-files
   - WHEN: Setting up tests and coverage
   - WHY: Best practices, fixtures, coverage configuration
 
+- **AI Documentation** (Step 4): [docs/LLMS_TXT.md](docs/LLMS_TXT.md)
+  - WHEN: Creating llms.txt and CLAUDE.md files
+  - WHY: Best practices for AI agent documentation
+  - Templates: [templates/llms.txt](templates/llms.txt), [templates/CLAUDE.md](templates/CLAUDE.md)
+
 **DO NOT skip reading these documents - they contain critical implementation details!**
 
 ## ⚠️ CRITICAL: Verification Checklist
@@ -437,25 +581,30 @@ uv run pre-commit run --all-files
 
 ```bash
 # 1. Check project structure
-ls -la .github/workflows/  # MUST contain test.yml
+ls -la .github/workflows/  # MUST contain ci.yml
 ls -la .pre-commit-config.yaml  # MUST exist
 ls -la src/ tests/ docs/  # MUST exist
 
 # 2. Verify dependencies install
 uv sync --dev  # MUST complete without errors
 
-# 3. Run tests
-uv run pytest  # MUST pass all tests
+# 3. Run the application (ALWAYS use uv run python, NOT plain python)
+uv run python src/{package_name}/main.py  # MUST run without errors
 
-# 4. Check code quality
+# 4. Run tests with coverage
+uv run pytest --cov=src/{package_name} --cov-report=term-missing  # MUST pass all tests
+# MUST have minimum 80% coverage (see docs/testing/TEST_COVERAGE.md)
+# If coverage < 80%, bootstrap is INCOMPLETE - add more tests!
+
+# 5. Check code quality
 uv run ruff check .  # MUST pass
 uv run ruff format --check .  # MUST pass
 uv run mypy src/  # SHOULD pass (may need configuration)
 
-# 5. Verify pre-commit hooks
+# 6. Verify pre-commit hooks
 uv run pre-commit run --all-files  # MUST pass
 
-# 6. Check git
+# 7. Check git
 git status  # MUST show initialized repository
 ```
 

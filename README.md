@@ -17,18 +17,25 @@ This repository is designed for AI agents (Claude Code, GitHub Copilot, Cursor, 
 ```
 vibe-coding-templates/
 ├── CLAUDE.md              # Instructions for AI agents
+├── llms.txt               # LLM-friendly project overview
 ├── python/                # Python project templates
 │   ├── BOOTSTRAP.md       # Step-by-step bootstrap guide
 │   ├── AI_AGENT_GUIDE.md  # Common scenarios & quick reference
 │   ├── EXAMPLE_USAGE.md   # Complete example walkthrough
 │   ├── docs/              # Comprehensive documentation
 │   │   ├── PACKAGE_MANAGEMENT.md
+│   │   ├── LLMS_TXT.md    # llms.txt documentation
 │   │   ├── cicd/
 │   │   │   ├── GITHUB_ACTIONS.md
 │   │   │   └── PRE_COMMIT.md
 │   │   └── testing/
-│   │       └── TEST_COVERAGE.md
+│   │       ├── TEST_COVERAGE.md
+│   │       ├── CODE_QUALITY.md
+│   │       └── UNIT_TESTING.md
 │   └── templates/         # Reusable templates
+│       ├── Makefile       # Development tasks
+│       ├── llms.txt       # AI documentation template
+│       ├── CLAUDE.md      # Claude-specific template
 │       └── cicd/
 │           ├── workflows/ # GitHub Actions
 │           └── hooks/     # Pre-commit hooks
@@ -65,12 +72,19 @@ Complete Python project setup with:
 - **Code Quality**: ruff, mypy, pre-commit hooks
 - **Documentation**: Comprehensive guides
 
-📖 **Python Resources:**
-- [Bootstrap Guide](python/BOOTSTRAP.md)
-- [AI Agent Guide](python/AI_AGENT_GUIDE.md)
-- [Package Management](python/docs/PACKAGE_MANAGEMENT.md)
-- [GitHub Actions](python/docs/cicd/GITHUB_ACTIONS.md)
-- [Pre-commit Hooks](python/docs/cicd/PRE_COMMIT.md)
+📖 **Python Documentation:**
+- [Bootstrap Guide](python/BOOTSTRAP.md) - Complete setup walkthrough
+- [AI Agent Guide](python/AI_AGENT_GUIDE.md) - Quick reference for AI agents
+- [Package Management](python/docs/PACKAGE_MANAGEMENT.md) - Using uv effectively
+- [llms.txt Guide](python/docs/LLMS_TXT.md) - AI documentation best practices
+- [GitHub Actions](python/docs/cicd/GITHUB_ACTIONS.md) - CI/CD workflows
+- [Pre-commit Hooks](python/docs/cicd/PRE_COMMIT.md) - Code quality automation
+
+🛠️ **Python Templates:**
+- [Makefile](python/templates/Makefile) - Complete development tasks
+- [llms.txt](python/templates/llms.txt) - AI agent documentation
+- [CLAUDE.md](python/templates/CLAUDE.md) - Claude-specific instructions
+- [CI/CD Workflows](python/templates/cicd/workflows/) - GitHub Actions
 
 ### Future Languages
 
@@ -100,14 +114,14 @@ The AI agent follows [python/BOOTSTRAP.md](python/BOOTSTRAP.md) to create a comp
 
 ### For Python Projects
 
-| Feature | Tool/Framework | Documentation |
-|---------|---------------|--------------|
-| Package Management | uv | [docs](python/docs/PACKAGE_MANAGEMENT.md) |
-| Testing | pytest | [docs](python/docs/testing/TEST_COVERAGE.md) |
-| Linting | ruff | [templates](python/templates/cicd/hooks/) |
-| Type Checking | mypy | [templates](python/templates/cicd/hooks/) |
-| CI/CD | GitHub Actions | [docs](python/docs/cicd/GITHUB_ACTIONS.md) |
-| Pre-commit | pre-commit | [docs](python/docs/cicd/PRE_COMMIT.md) |
+| Feature | Tool/Framework | Documentation | Template |
+|---------|---------------|--------------|----------|
+| Package Management | uv | [docs](python/docs/PACKAGE_MANAGEMENT.md) | [Makefile](python/templates/Makefile) |
+| Testing | pytest | [docs](python/docs/testing/TEST_COVERAGE.md) | - |
+| Code Quality | ruff, black, mypy | [docs](python/docs/testing/CODE_QUALITY.md) | [hooks](python/templates/cicd/hooks/) |
+| CI/CD | GitHub Actions | [docs](python/docs/cicd/GITHUB_ACTIONS.md) | [workflows](python/templates/cicd/workflows/) |
+| Pre-commit | pre-commit | [docs](python/docs/cicd/PRE_COMMIT.md) | [hooks](python/templates/cicd/hooks/) |
+| AI Documentation | llms.txt | [docs](python/docs/LLMS_TXT.md) | [llms.txt](python/templates/llms.txt) |
 
 ## 🤝 Contributing
 
@@ -136,6 +150,14 @@ If you're building an AI agent that creates projects:
 3. Use language-specific `BOOTSTRAP.md` guides
 4. Reference `docs/` for detailed information
 5. Apply templates from `templates/` directories
+6. Include `llms.txt` in generated projects for AI context
+
+### Key Files for AI Agents
+
+- **CLAUDE.md** - Repository-level AI instructions
+- **llms.txt** - Standard AI documentation format ([llmstxt.org](https://llmstxt.org))
+- **BOOTSTRAP.md** - Step-by-step project creation
+- **templates/** - Ready-to-use configuration files
 
 ## 📬 Support
 

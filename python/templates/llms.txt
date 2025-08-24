@@ -1,0 +1,112 @@
+# {{project_name}}
+
+> {{description}}
+
+## Overview
+
+{{project_name}} is a Python {{project_type}} that {{key_functionality}}.
+
+Key features:
+- 🎯 {{feature_1}}
+- 📝 {{feature_2}}  
+- 🔧 {{feature_3}}
+
+## Quick Start for AI Agents
+
+The simplest way to use {{project_name}}:
+
+```python
+from {{package_name}} import {{main_class_or_function}}
+
+# Example usage
+result = {{main_class_or_function}}()
+print(result)
+```
+
+## Project Structure
+
+```
+{{project_name}}/
+├── src/{{package_name}}/  # Main package
+│   ├── __init__.py       # Package initialization
+│   └── main.py           # Main module
+├── tests/                # Test suite
+│   ├── conftest.py       # Pytest fixtures
+│   └── test_main.py      # Main tests
+├── docs/                 # Documentation
+├── .github/workflows/    # CI/CD workflows
+├── pyproject.toml        # Project configuration
+├── Makefile              # Development tasks
+├── README.md             # User documentation
+└── CLAUDE.md             # AI agent instructions
+```
+
+## Development
+
+```bash
+# Install with development dependencies
+uv sync --dev
+
+# Run tests
+uv run pytest
+
+# Check coverage
+uv run pytest --cov={{package_name}}
+
+# Run all quality checks
+make qa
+
+# Format code
+make format
+
+# View all available tasks
+make help
+```
+
+## Key APIs
+
+### Main Module
+- `{{main_class_or_function}}()` - {{main_functionality_description}}
+- `{{secondary_function}}()` - {{secondary_functionality_description}}
+
+### Configuration
+- Environment variables: `{{ENV_VAR_PREFIX}}_*`
+- Config file: `config.yaml` (optional)
+
+## Testing
+
+Run tests with coverage:
+```bash
+uv run pytest --cov={{package_name}} --cov-report=term-missing
+```
+
+Target coverage: minimum 80% overall, 90-100% for critical modules.
+
+## Dependencies
+
+- Python {{python_version}}+
+- See `pyproject.toml` for full dependency list
+- Uses `uv` for package management (10-100x faster than pip)
+
+## CI/CD
+
+GitHub Actions workflows:
+- **CI**: Runs on push and PR (testing, linting, type checking)
+- **Publish**: Releases to PyPI on version tags
+
+Pre-commit hooks ensure code quality before commits.
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make changes and add tests
+4. Ensure all checks pass: `make check`
+5. Submit a pull request
+
+## License
+
+{{license}} License - See LICENSE file for details.
+
+---
+Generated from vibe-coding-templates

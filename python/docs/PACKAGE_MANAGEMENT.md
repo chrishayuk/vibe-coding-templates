@@ -177,33 +177,40 @@ uv pip show package-name
 
 ## Makefile Integration
 
-The project's Makefile is configured to use uv:
+The project includes a comprehensive Makefile configured to use uv for all operations.
 
-```makefile
-# Install dependencies
-install:
-	uv sync
+📚 **See the complete Makefile template: [python/templates/Makefile](../templates/Makefile)**
 
-# Install with dev dependencies
-dev-install:
-	uv sync --dev
+### Common Make Targets
 
-# Run tests
-test:
-	uv run pytest
+```bash
+# Installation
+make install        # Install production dependencies
+make dev-install    # Install all dependencies including dev
+make upgrade        # Upgrade all dependencies
 
-# Run with coverage
-test-cov:
-	uv run pytest --cov=src/{{package_name}}
+# Testing
+make test          # Run all tests
+make test-cov      # Run tests with coverage report
+make test-watch    # Run tests in watch mode
 
-# Linting
-lint:
-	uv run ruff check .
+# Code Quality
+make lint          # Run all linting checks
+make lint-fix      # Fix auto-fixable issues
+make format        # Format code with ruff and black
+make typecheck     # Run type checking with mypy
 
-# Type checking
-typecheck:
-	uv run mypy src/
+# Development
+make run           # Run the main application
+make shell         # Open interactive Python shell
+make clean         # Clean build artifacts
+
+# Quality Assurance
+make qa            # Run all quality checks
+make ready         # Prepare code for commit
 ```
+
+The Makefile template includes many more targets for CI/CD, documentation, dependency management, and more. See the full template for complete functionality.
 
 ## CI/CD Integration
 

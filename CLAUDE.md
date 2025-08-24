@@ -43,6 +43,12 @@ Complete Python project templates with:
 - **GitHub Actions**: [python/docs/cicd/GITHUB_ACTIONS.md](python/docs/cicd/GITHUB_ACTIONS.md)
 - **Pre-commit Hooks**: [python/docs/cicd/PRE_COMMIT.md](python/docs/cicd/PRE_COMMIT.md)
 - **Testing**: [python/docs/testing/TEST_COVERAGE.md](python/docs/testing/TEST_COVERAGE.md)
+- **llms.txt Guide**: [python/docs/LLMS_TXT.md](python/docs/LLMS_TXT.md)
+
+### Key Python Templates:
+- **Makefile**: [python/templates/Makefile](python/templates/Makefile)
+- **llms.txt**: [python/templates/llms.txt](python/templates/llms.txt)
+- **CLAUDE.md**: [python/templates/CLAUDE.md](python/templates/CLAUDE.md)
 
 ## Important Principles for AI Agents
 
@@ -98,8 +104,27 @@ uv build
 uv lock
 ```
 
+## Makefile Integration
+
+Python projects include a comprehensive Makefile for common development tasks, configured to use `uv` commands.
+
+📚 **See the complete Makefile template: [python/templates/Makefile](python/templates/Makefile)**  
+📚 **Documentation: [python/docs/PACKAGE_MANAGEMENT.md#makefile-integration](python/docs/PACKAGE_MANAGEMENT.md)**
+
+Common make targets:
+- `make help` - Show all available targets
+- `make install` - Install project dependencies
+- `make dev-install` - Install with dev dependencies  
+- `make test` - Run tests
+- `make test-cov` - Run tests with coverage
+- `make lint` - Run linting checks
+- `make format` - Format code
+- `make qa` - Run all quality checks
+- `make clean` - Clean build artifacts
+
 **AI AGENTS**: You MUST read [python/docs/PACKAGE_MANAGEMENT.md](python/docs/PACKAGE_MANAGEMENT.md) for:
 - Complete command reference
+- Makefile integration details
 - Lock file management (`uv.lock`)
 - Troubleshooting common issues
 - Best practices and DO's/DON'Ts
