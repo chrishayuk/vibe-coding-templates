@@ -6,16 +6,13 @@ Pre-commit hooks automatically check your code before commits, ensuring code qua
 
 ## Quick Start
 
-1. **Check Project Requirements**
-   ```yaml
-   # Review manifests/project-hooks.yaml for required hooks
-   cat manifests/project-hooks.yaml
-   ```
-
-2. **Install Pre-commit**
+1. **Install Pre-commit**
    ```bash
    uv add --dev pre-commit
    ```
+
+2. **Create Configuration**
+   Create `.pre-commit-config.yaml` with your chosen hooks
 
 3. **Install Hooks**
    ```bash
@@ -23,24 +20,23 @@ Pre-commit hooks automatically check your code before commits, ensuring code qua
    pre-commit install --hook-type pre-push  # For pre-push hooks
    ```
 
-## Project Hook Configuration
+## Choosing Hooks for Your Project
 
-Your project's hook requirements are defined in `manifests/project-hooks.yaml`. This file specifies:
-- Which hooks are required vs optional
-- Template URLs for each hook
-- Configuration parameters
-- Hook stages (pre-commit, pre-push, manual)
+### Essential Hooks (Recommended for all projects)
+- **Ruff**: Fast Python linting and formatting
+  - Template: `pre-commit-ruff-hook.yaml`
+  - Purpose: Maintain code quality
+- **Type checking**: MyPy or Pyright
+  - Template: `pre-commit-mypy-hook.yaml`
+  - Purpose: Catch type errors early
 
-### Example Hook Manifest
-```yaml
-hooks:
-  - id: ruff-check
-    name: Ruff Linter
-    template: <template-url>
-    required: true
-    config:
-      package_name: {package_name}
-```
+### Additional Quality Hooks
+- **Secret detection**: Prevent credential leaks
+  - Template: `pre-commit-secrets-hook.yaml`
+- **Test coverage**: Ensure adequate testing
+  - Template: `pre-commit-coverage-hook.yaml`
+- **Documentation**: Markdown and YAML validation
+  - Template: `pre-commit-markdown-hook.yaml`
 
 ## Available Hook Templates
 
@@ -68,25 +64,37 @@ hooks:
 
 ## Setting Up Hooks
 
-### Step 1: Create Configuration File
+### Step 1: Start with a Basic Configuration
 
-Create `.pre-commit-config.yaml`:
+Create `.pre-commit-config.yaml` with essential hooks:
 
 ```yaml
-# See manifests/project-hooks.yaml for required hooks
 repos:
-  # Add repo configurations here
-  - repo: local
+  # Ruff - Fast Python linter and formatter
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.8.0
     hooks:
-      # Local hooks from manifests/project-hooks.yaml
+      - id: ruff
+        args: [--fix, --exit-non-zero-on-fix]
+      - id: ruff-format
+
+  # Standard hooks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
 ```
 
-### Step 2: Add Required Hooks
+### Step 2: Add Additional Hooks
 
-For each required hook in `manifests/project-hooks.yaml`:
-1. Copy the hook configuration from the template URL
-2. Add to `.pre-commit-config.yaml`
-3. Customize configuration parameters
+Copy configurations from `templates/cicd/hooks/` for:
+- Type checking (mypy)
+- Secret detection
+- Test coverage
+- Other project-specific needs
 
 ### Step 3: Configure Hook Stages
 
@@ -208,11 +216,11 @@ Enable auto-fixing for formatting:
   args: [--fix]
 ```
 
-### 4. Document Hook Requirements
-Keep `manifests/project-hooks.yaml` updated with:
-- Why each hook is needed
-- Configuration rationale
-- Override instructions
+### 4. Document Hook Configuration
+In your README or contributing guide, document:
+- Which hooks are required for contributors
+- How to run hooks manually
+- How to temporarily skip hooks (emergency only)
 
 ## Troubleshooting
 
@@ -286,8 +294,8 @@ ci:
 ### Customization Notes
 
 When using this guide:
-1. Always check `manifests/project-hooks.yaml` first
-2. Install only required hooks initially
-3. Add optional hooks based on team needs
-4. Test hooks locally before committing config
-5. Document any hook overrides or exceptions
+1. Start with essential hooks (ruff, basic checks)
+2. Add more hooks gradually based on team needs
+3. Test hooks locally before committing config
+4. Document any hook overrides or exceptions
+5. Keep hooks fast to maintain developer productivity

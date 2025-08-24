@@ -1,0 +1,138 @@
+# Vibe Coding Templates
+
+Professional project templates for bootstrapping modern software projects with best practices, comprehensive tooling, and AI-friendly documentation.
+
+## What We Provide
+
+Modern, production-ready templates for multiple programming languages with:
+- Complete project structure and configuration
+- Package management best practices
+- Testing and coverage setup
+- CI/CD workflows
+- Pre-commit hooks and code quality tools
+- Comprehensive documentation
+
+## Available Templates
+
+### Python Templates
+Complete Python project bootstrap with:
+- **Package Management**: `uv` for 10-100x faster dependency management
+- **Testing**: pytest with coverage reporting
+- **Code Quality**: ruff, black, mypy
+- **CI/CD**: GitHub Actions workflows
+- **Pre-commit**: Automated code quality checks
+- **Documentation**: Comprehensive guides and best practices
+
+## Quick Start
+
+### For Python Projects
+
+```bash
+# 1. Navigate to Python templates
+cd python/
+
+# 2. Follow the bootstrap guide
+# Read python/BOOTSTRAP.md
+
+# 3. Use templates from python/templates/
+# Copy and customize as needed
+
+# 4. Verify setup
+uv sync --dev
+uv run pytest
+uv run ruff check .
+```
+
+## How This Helps AI Agents
+
+This repository is specifically designed to help AI agents (like Claude, GPT-4, etc.) bootstrap professional projects efficiently:
+
+1. **Structured Guidance**: Step-by-step BOOTSTRAP.md files
+2. **Complete Templates**: Ready-to-use configuration files
+3. **Best Practices**: Modern tooling and conventions
+4. **Documentation Links**: Comprehensive guides for each component
+5. **Verification Steps**: Built-in commands to ensure correctness
+
+## Repository Structure
+
+```
+vibe-coding-templates/
+├── python/                    # Python project templates
+│   ├── BOOTSTRAP.md           # Step-by-step setup guide
+│   ├── AI_AGENT_GUIDE.md      # Quick reference for AI agents
+│   ├── templates/             # Configuration templates
+│   │   ├── project/           # Project structure templates
+│   │   ├── cicd/              # CI/CD workflow templates
+│   │   └── config/            # Tool configuration templates
+│   └── docs/                  # Comprehensive documentation
+│       ├── PACKAGE_MANAGEMENT.md
+│       ├── testing/
+│       └── cicd/
+├── CLAUDE.md                  # Claude AI specific instructions
+└── llms.txt                   # This file - AI agent overview
+
+```
+
+## Key Documentation
+
+### Python Development
+- **Bootstrap Guide**: `python/BOOTSTRAP.md` - Complete project setup
+- **Package Management**: `python/docs/PACKAGE_MANAGEMENT.md` - Using uv effectively
+- **Testing**: `python/docs/testing/TEST_COVERAGE.md` - Test strategy and coverage
+- **CI/CD**: `python/docs/cicd/GITHUB_ACTIONS.md` - Automated workflows
+- **Pre-commit**: `python/docs/cicd/PRE_COMMIT.md` - Code quality automation
+
+## For AI Agents
+
+When helping users create a new project:
+
+1. **Read First**: Always read the relevant BOOTSTRAP.md
+2. **Follow Links**: When BOOTSTRAP.md references documentation, read it
+3. **Use Templates**: Don't recreate - use provided templates
+4. **Verify Setup**: Always run verification commands
+5. **Check Dependencies**: Ensure all tools are installed
+
+### Critical Files for AI Agents
+
+- `CLAUDE.md`: Specific instructions for Claude AI
+- `python/AI_AGENT_GUIDE.md`: Quick reference and common scenarios
+- `python/BOOTSTRAP.md`: The primary guide to follow
+- `python/docs/PACKAGE_MANAGEMENT.md`: Essential for Python projects
+
+## Modern Python Stack
+
+Our Python templates use:
+- **uv**: Ultra-fast package manager (Rust-based)
+- **pytest**: Testing framework with coverage
+- **ruff**: Fast Python linter and formatter
+- **black**: Opinionated code formatter
+- **mypy**: Static type checker
+- **pre-commit**: Git hooks for code quality
+
+## Best Practices Included
+
+1. **Lock Files**: Always use uv.lock for reproducible builds
+2. **Type Hints**: Full type annotation support
+3. **Testing**: Minimum 80% coverage target
+4. **CI/CD**: Automated testing on multiple Python versions
+5. **Code Quality**: Automated formatting and linting
+6. **Documentation**: Comprehensive guides for all components
+
+## Contributing
+
+This repository welcomes contributions that:
+- Add new language templates
+- Improve existing templates
+- Enhance documentation
+- Fix issues or bugs
+
+## License
+
+MIT License - Use these templates freely in your projects.
+
+## Links
+
+- Repository: https://github.com/chrishayuk/vibe-coding-templates
+- Issues: https://github.com/chrishayuk/vibe-coding-templates/issues
+- Python Bootstrap: python/BOOTSTRAP.md
+- AI Agent Guide: python/AI_AGENT_GUIDE.md

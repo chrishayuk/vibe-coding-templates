@@ -1,0 +1,51 @@
+# Black configuration in pyproject.toml
+# Add this section to your pyproject.toml file
+
+[tool.black]
+# Set the line length (default is 88)
+line-length = 88
+
+# Target specific Python versions
+target-version = ['py310', 'py311', 'py312']
+
+# Include/exclude patterns
+include = '\.pyi?$'
+extend-exclude = '''
+# A regex preceded with ^/ will apply only to files and directories
+# in the root of the project.
+(
+  /(
+      \.eggs         # exclude a few common directories in the
+    | \.git          # root of the project
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+  )/
+  | foo.py           # also separately exclude a file named foo.py in
+                     # the root of the project
+)
+'''
+
+# Use trailing commas where appropriate
+# This makes diffs smaller and cleaner
+skip-string-normalization = false
+
+# Don't skip the first line of docstrings
+skip-source-first-line = false
+
+# Use the magic trailing comma
+skip-magic-trailing-comma = false
+
+# Format Python code in docstrings
+enable-unstable-feature = ["string_processing"]
+
+# Use preview style (experimental features)
+preview = false
+
+# Workers for parallel processing (0 = number of CPUs)
+workers = 0

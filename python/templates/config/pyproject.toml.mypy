@@ -1,0 +1,95 @@
+# MyPy configuration in pyproject.toml
+# Add this section to your pyproject.toml file
+# This is an alternative to mypy.ini
+
+[tool.mypy]
+# Python version
+python_version = "3.10"
+
+# Strict mode - recommended for new projects
+strict = true
+
+# Or use individual strict settings:
+# warn_return_any = true
+# warn_unused_configs = true
+# disallow_untyped_defs = true
+# disallow_any_unimported = true
+# no_implicit_optional = true
+# check_untyped_defs = true
+# warn_redundant_casts = true
+# warn_unused_ignores = true
+# warn_no_return = true
+# warn_unreachable = true
+# strict_equality = true
+
+# Import discovery
+namespace_packages = true
+explicit_package_bases = true
+mypy_path = "src"
+
+# Output formatting
+show_error_context = true
+show_column_numbers = true
+show_error_codes = true
+pretty = true
+error_summary = true
+color_output = true
+
+# Warning settings
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_unreachable = true
+warn_unused_configs = true
+
+# Import handling
+ignore_missing_imports = false
+follow_imports = "normal"
+follow_imports_for_stubs = true
+no_implicit_reexport = true
+
+# Incremental checking
+incremental = true
+cache_dir = ".mypy_cache"
+
+# Exclude patterns
+exclude = [
+    "build/",
+    "dist/",
+    ".venv/",
+    "venv/",
+    ".tox/",
+    "tests/fixtures/",
+]
+
+# Plugins for popular frameworks
+plugins = [
+    # "pydantic.mypy",
+    # "sqlalchemy.ext.mypy.plugin",
+    # "numpy.typing.mypy_plugin",
+]
+
+# Per-module options
+[[tool.mypy.overrides]]
+module = "pytest.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "setuptools.*"
+ignore_missing_imports = true
+
+# Stricter checks for your package
+[[tool.mypy.overrides]]
+module = "{package_name}.*"
+disallow_untyped_defs = true
+disallow_any_unimported = true
+no_implicit_optional = true
+warn_return_any = true
+
+# More relaxed for tests
+[[tool.mypy.overrides]]
+module = "tests.*"
+disallow_untyped_defs = false
+disallow_untyped_calls = false
+disallow_incomplete_defs = false
+check_untyped_defs = true

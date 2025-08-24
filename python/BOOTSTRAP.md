@@ -45,8 +45,16 @@ mkdir -p src/{package_name} tests docs scripts .github/workflows
 
 ### pyproject.toml
 
-⚠️ **IMPORTANT: Read `docs/PACKAGE_MANAGEMENT.md` BEFORE implementing!**
-The linked documentation contains critical details about uv commands, lock files, and best practices.
+⚠️ **IMPORTANT: Read `docs/PACKAGE_MANAGEMENT.md` AND `docs/testing/CODE_QUALITY.md` BEFORE implementing!**
+These documents contain critical details about:
+- Package management with uv
+- Code quality tools configuration (Black, isort, Ruff, MyPy)
+- Best practices for tool integration
+
+**Dev Dependencies Installation Guidance**:
+- ⚠️ **ALWAYS use the latest versions** - Don't use the example versions below
+- Run `uv add --dev <package>` to get the latest version automatically
+- Or check PyPI for current versions before specifying
 
 Use the template structure from `docs/PACKAGE_MANAGEMENT.md` with these essential sections:
 
@@ -59,31 +67,55 @@ build-backend = "hatchling.build"
 name = "{package_name}"
 version = "0.1.0"
 description = "{description}"
+readme = "README.md"
 requires-python = ">={python_version}"
 dependencies = []
 
 [tool.uv]
+# ⚠️ IMPORTANT: These are example versions - use latest versions!
+# Run: uv add --dev pytest pytest-cov mypy ruff black isort pre-commit
+# This will automatically get the latest versions
 dev-dependencies = [
-    "pytest>=8.0.0",
-    "pytest-cov>=6.0.0",
-    "mypy>=1.0.0",
-    "ruff>=0.8.0",
-    "pre-commit>=3.5.0",
+    "pytest>=8.0.0",      # Testing framework
+    "pytest-cov>=6.0.0",  # Coverage plugin for pytest
+    "mypy>=1.0.0",        # Static type checker
+    "ruff>=0.8.0",        # Fast linter and formatter
+    "black>=24.0.0",      # Code formatter
+    "isort>=5.13.0",      # Import sorter
+    "pre-commit>=3.5.0",  # Git hook manager
 ]
 ```
 
-**REQUIRED ACTION**: Open and read the full configuration options in `docs/PACKAGE_MANAGEMENT.md` to understand:
-- Complete pyproject.toml structure
-- Lock file management
-- Common uv commands
-- Best practices and troubleshooting
+**REQUIRED ACTIONS**: 
+1. Read `docs/PACKAGE_MANAGEMENT.md` for package management details
+2. Read `docs/testing/CODE_QUALITY.md` for tool configuration (Black, isort, Ruff)
+3. Use `uv add --dev` to get latest versions instead of hardcoding versions
 
 ### Makefile
 
-**REQUIRED ACTION**: Read the "Makefile Integration" section in `docs/PACKAGE_MANAGEMENT.md` first!
-This section contains the complete Makefile template with all necessary targets.
+📚 **Use the comprehensive Makefile template: [templates/Makefile](templates/Makefile)**
 
-Create a Makefile using the template from `docs/PACKAGE_MANAGEMENT.md` (Section: Makefile Integration).
+Copy the Makefile template to your project and replace `{{package_name}}` with your actual package name.
+
+```bash
+# Copy the Makefile template
+cp ../templates/Makefile .
+
+# Replace placeholder with your package name (example for macOS/Linux)
+sed -i '' 's/{{package_name}}/your_package_name/g' Makefile  # macOS
+# OR
+sed -i 's/{{package_name}}/your_package_name/g' Makefile     # Linux
+```
+
+The Makefile includes all common development tasks:
+- **Installation**: `make install`, `make dev-install`
+- **Testing**: `make test`, `make test-cov`, `make test-watch`
+- **Code Quality**: `make lint`, `make format`, `make typecheck`
+- **Cleaning**: `make clean`, `make clean-all`
+- **CI/CD**: `make qa`, `make ready`, `make ci-test`
+- **And many more** - run `make help` to see all available targets
+
+📚 **See also**: [docs/PACKAGE_MANAGEMENT.md#makefile-integration](docs/PACKAGE_MANAGEMENT.md) for detailed documentation.
 
 ### .gitignore
 
@@ -91,9 +123,85 @@ Standard Python gitignore including:
 - `__pycache__/`, `*.py[cod]`, `.pytest_cache/`
 - `.venv/`, `venv/`, `.coverage`, `htmlcov/`
 - `.idea/`, `.vscode/`, `.DS_Store`
+- `.ruff_cache/`, `.mypy_cache/`
 - `uv.lock` (if desired for development)
 
-## Step 4: Create Initial Source Files
+## Step 4: Create Documentation and Initial Source Files
+
+### README.md
+```markdown
+# {project_name}
+
+{description}
+
+## Installation
+
+```bash
+uv sync --dev
+```
+
+## Usage
+
+```bash
+uv run {package_name}
+```
+
+## Development
+
+```bash
+make test         # Run tests
+make lint         # Run linting
+make format       # Format code
+make check        # Run all checks
+```
+```
+
+### llms.txt (AI Agent Documentation)
+
+📚 **Use the llms.txt template: [templates/llms.txt](templates/llms.txt)**  
+📚 **Documentation: [docs/LLMS_TXT.md](docs/LLMS_TXT.md)**
+
+Create an `llms.txt` file to help AI agents understand your project:
+
+```bash
+# Copy the template
+cp ../templates/llms.txt .
+
+# Edit and replace placeholders with your project details
+# See docs/LLMS_TXT.md for detailed guidance on each section
+```
+
+The llms.txt file provides AI agents with:
+- Project overview and key features
+- Quick start code examples
+- Project structure visualization
+- Common development commands
+- Key API references
+
+**Note**: Read [docs/LLMS_TXT.md](docs/LLMS_TXT.md) for best practices and examples.
+
+### CLAUDE.md (Claude Code Instructions)
+
+📚 **Use the CLAUDE.md template: [templates/CLAUDE.md](templates/CLAUDE.md)**
+
+Create a `CLAUDE.md` file with project-specific instructions for Claude Code:
+
+```bash
+# Copy the template
+cp ../templates/CLAUDE.md .
+
+# Replace placeholders with your project details
+sed -i '' 's/{{project_name}}/your_project_name/g' CLAUDE.md  # macOS
+sed -i '' 's/{{package_name}}/your_package_name/g' CLAUDE.md
+# Add any project-specific notes
+```
+
+The CLAUDE.md file helps Claude Code understand:
+- Project standards and guidelines
+- Common development commands
+- Testing requirements
+- Code style preferences
+- Git workflow
 
 ### src/{package_name}/__init__.py
 ```python
@@ -106,10 +214,15 @@ Create a minimal main module with at least one function to test.
 
 ## Step 5: Set Up Testing
 
-**BEFORE PROCEEDING**: If testing setup is new to you, read `docs/testing/TEST_COVERAGE.md` for:
-- Testing best practices
-- Coverage configuration
-- pytest fixtures and patterns
+**BEFORE PROCEEDING**: Read BOTH documents:
+1. `docs/testing/TEST_COVERAGE.md` - Testing setup and coverage targets
+2. `docs/testing/CODE_QUALITY.md` - Code quality tools configuration
+
+These documents cover:
+- Testing best practices and coverage configuration
+- Black and isort setup for consistent formatting
+- Ruff configuration for linting
+- MyPy setup for type checking
 
 ### tests/test_main.py
 Create basic tests that import and test your package:
@@ -121,17 +234,17 @@ def test_your_function():
 ```
 
 ### tests/conftest.py
-**ACTION**: Read `docs/testing/TEST_COVERAGE.md` for pytest fixtures and testing patterns.
+**ACTION**: Read `docs/testing/TEST_COVERAGE.md` and `docs/testing/UNIT_TESTING.md` for pytest fixtures and testing patterns.
 Add pytest fixtures as needed based on the documentation.
 
 ## Step 6: Configure GitHub Actions (REQUIRED)
 
 **⚠️ IMPORTANT: Always create GitHub Actions workflows for CI/CD**
 
-### Create `.github/workflows/test.yml`:
+### Create `.github/workflows/ci.yml`:
 
 ```yaml
-name: Test Suite
+name: CI
 
 on:
   push:
@@ -139,38 +252,135 @@ on:
   pull_request:
     branches: [ main ]
 
+permissions:
+  contents: read
+
 jobs:
-  test:
-    runs-on: ubuntu-latest
+  ci:
+    runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
-        python-version: ['3.9', '3.10', '3.11', '3.12']
-    
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python-version: ["3.10", "3.11", "3.12"]
+
     steps:
     - uses: actions/checkout@v4
     
-    - name: Install uv
-      uses: astral-sh/setup-uv@v3
-      
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
-        
+    
+    - name: Install uv
+      uses: astral-sh/setup-uv@v3
+      with:
+        enable-cache: true
+        cache-dependency-glob: "pyproject.toml"
+    
     - name: Install dependencies
-      run: uv sync --dev
-        
-    - name: Run tests
-      run: uv run pytest tests/ --cov=src/{package_name}
+      run: |
+        uv sync --dev
+    
+    - name: Run linting checks
+      run: |
+        uv run ruff check src/ tests/
+        uv run black --check src/ tests/
+    
+    - name: Run type checking
+      run: |
+        uv run mypy src/
+    
+    - name: Run tests with coverage
+      run: |
+        uv run pytest tests/ -v --cov=src/{package_name} --cov-report=xml --cov-report=term-missing
+    
+    - name: Upload coverage to Codecov
+      if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.11'
+      uses: codecov/codecov-action@v4
+      with:
+        file: ./coverage.xml
+        flags: unittests
+        name: codecov-umbrella
+        fail_ci_if_error: false
 ```
 
 **Note**: Replace `{package_name}` with your actual package name.
 
-For additional workflows:
-1. **FIRST**: Read `docs/cicd/GITHUB_ACTIONS.md` for detailed setup instructions
-2. **THEN**: Copy from `templates/cicd/workflows/`:
-   - `github-actions-coverage.yaml` → `.github/workflows/coverage.yml`
-   - `github-actions-lint.yaml` → `.github/workflows/lint.yml`
+### Optional: Package Publishing Workflow
+
+For packages that will be published to PyPI, create `.github/workflows/publish.yml`:
+
+```yaml
+name: Publish to PyPI
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      test_pypi:
+        description: 'Publish to TestPyPI instead of PyPI'
+        required: false
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+  id-token: write  # Required for trusted publishing
+
+jobs:
+  build:
+    name: Build distribution packages
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    
+    - name: Install uv
+      uses: astral-sh/setup-uv@v3
+    
+    - name: Build package
+      run: |
+        uv build
+    
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: python-package-distributions
+        path: dist/
+
+  publish-pypi:
+    name: Publish to PyPI
+    if: github.event_name == 'release'
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/project/{package_name}/
+    
+    steps:
+    - name: Download artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: python-package-distributions
+        path: dist/
+    
+    - name: Publish to PyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
+```
+
+For additional workflows (optional):
+1. Read `docs/cicd/GITHUB_ACTIONS.md` for detailed setup instructions
+2. Copy workflow templates from `templates/cicd/workflows/` as needed:
+   - `publish.yml` for PyPI publishing (shown above)
+   - `github-actions-coverage.yaml` for coverage reporting
+   - `github-actions-lint.yaml` for additional linting
 
 ⚠️ The documentation contains important details about matrix testing, caching, and workflow optimization.
 
@@ -195,8 +405,8 @@ repos:
     rev: v1.11.2
     hooks:
       - id: mypy
-        # Add project-specific type stubs as needed
-        additional_dependencies: []  # Add deps like: [types-requests, click]
+        # Add project-specific type stubs as needed, NOT types-all
+        additional_dependencies: []  # Add specific stubs like: [types-requests]
         args: [--ignore-missing-imports]
         files: ^src/  # Only check src directory
 
@@ -219,27 +429,33 @@ repos:
         entry: uv run pytest
         language: system
         pass_filenames: false
-        stages: [push]
+        stages: [pre-push]
 ```
 
 **Note about optional hooks:**
 - **Detect-secrets**: If using, run `detect-secrets scan > .secrets.baseline` first
 - **Markdown linting**: Add language specifiers to code blocks (e.g., ` ```python` not just ` ``` `)
 
-For additional hook configurations:
-1. **REQUIRED**: Read `docs/cicd/PRE_COMMIT.md` for hook configuration details
-2. **THEN**: Check `templates/cicd/hooks/` for additional hook examples
+For additional hook configurations (optional):
+1. Read `docs/cicd/PRE_COMMIT.md` for hook configuration details
+2. Check `templates/cicd/hooks/` for additional hook examples:
+   - `pre-commit-mypy-hook.yaml` for type checking configuration
+   - `pre-commit-coverage-hook.yaml` for coverage thresholds
+   - `pre-commit-secrets-hook.yaml` for secret detection
 
 The documentation explains hook stages, custom hooks, and troubleshooting.
 
 ## Step 8: Initialize and Install
 
 ```bash
+# Navigate to project directory
+cd {project_name}
+
 # Initialize git FIRST (required for pre-commit)
 git init
 
-# Install uv (if not present)
-curl -LsSf https://astral.sh/uv/install.sh | sh
+# Check if uv is installed, install if not present
+command -v uv >/dev/null 2>&1 || curl -LsSf https://astral.sh/uv/install.sh | sh
 
 # Install dependencies
 uv sync --dev
@@ -247,13 +463,19 @@ uv sync --dev
 # Install pre-commit hooks
 uv run pre-commit install
 
-# Fix any initial linting issues
+# Fix any initial linting and formatting issues
+# Order matters: isort -> black -> ruff (see docs/testing/CODE_QUALITY.md)
+uv run isort . --profile black
+uv run black .
 uv run ruff check . --fix
 uv run ruff format .
 
 # Stage and verify with pre-commit
 git add .
-pre-commit run --all-files  # May need to run twice if files are fixed
+uv run pre-commit run --all-files  # May need to run twice if files are fixed
+
+# If pre-commit made changes, stage them again
+git add .
 
 # Initial commit
 git commit -m "Initial project structure"
@@ -263,23 +485,50 @@ git commit -m "Initial project structure"
 
 **IMPORTANT**: These commands are from `docs/PACKAGE_MANAGEMENT.md` - read that document if any command fails!
 
+### Running the Application
+
+**⚠️ CRITICAL: Always use `uv run python` to execute Python code, NOT plain `python`**
+
+```bash
+# ✅ CORRECT - Uses project's virtual environment
+uv run python src/{package_name}/main.py
+uv run python -m {package_name}.main
+
+# ❌ INCORRECT - May use system Python or wrong environment
+python src/{package_name}/main.py  # DO NOT USE
+python -m {package_name}.main      # DO NOT USE
+```
+
+### Verification Commands
+
 Run these commands to verify setup:
 
 ```bash
+# Run the application (ALWAYS use uv run python)
+uv run python src/{package_name}/main.py
+
 # Package management
 uv --version
 uv pip list
 
-# Testing
-uv run pytest
+# Testing with coverage (IMPORTANT: Check coverage meets minimum requirements)
+uv run pytest --cov=src/{package_name} --cov-report=term-missing
 
-# Code quality
+# ⚠️ Coverage Requirements (from docs/testing/TEST_COVERAGE.md):
+# - Minimum overall: 80%
+# - Critical modules: 90-100%
+# - New code: 95%+
+# If coverage is below 80%, add more tests before considering bootstrap complete
+
+# Code quality (see docs/testing/CODE_QUALITY.md for details)
+uv run isort . --check-only --profile black
+uv run black . --check
 uv run ruff check .
 uv run ruff format --check .
 uv run mypy src/
 
 # Pre-commit
-pre-commit run --all-files
+uv run pre-commit run --all-files
 ```
 
 ## Template Variables Reference
@@ -298,6 +547,12 @@ pre-commit run --all-files
 - **Package Management** (Step 3, 8, 9): [docs/PACKAGE_MANAGEMENT.md](docs/PACKAGE_MANAGEMENT.md)
   - WHEN: Creating pyproject.toml, Makefile, running uv commands
   - WHY: Contains complete templates, command reference, troubleshooting
+  - ⚠️ CRITICAL: Use `uv add --dev` to get latest package versions
+  
+- **Code Quality** (Step 3, 5, 8, 9): [docs/testing/CODE_QUALITY.md](docs/testing/CODE_QUALITY.md)
+  - WHEN: Setting up Black, isort, Ruff, MyPy
+  - WHY: Tool configuration, integration, and order of operations
+  - ⚠️ CRITICAL: Read sections on Black+isort integration to avoid conflicts
   
 - **GitHub Actions** (Step 6): [docs/cicd/GITHUB_ACTIONS.md](docs/cicd/GITHUB_ACTIONS.md)
   - WHEN: Setting up CI/CD workflows
@@ -307,9 +562,16 @@ pre-commit run --all-files
   - WHEN: Configuring pre-commit hooks
   - WHY: Details hook stages, custom hooks, troubleshooting
   
-- **Testing** (Step 5): [docs/testing/TEST_COVERAGE.md](docs/testing/TEST_COVERAGE.md)
+- **Testing** (Step 5): 
+  - [docs/testing/TEST_COVERAGE.md](docs/testing/TEST_COVERAGE.md) - Coverage setup and targets
+  - [docs/testing/UNIT_TESTING.md](docs/testing/UNIT_TESTING.md) - Testing patterns and fixtures
   - WHEN: Setting up tests and coverage
   - WHY: Best practices, fixtures, coverage configuration
+
+- **AI Documentation** (Step 4): [docs/LLMS_TXT.md](docs/LLMS_TXT.md)
+  - WHEN: Creating llms.txt and CLAUDE.md files
+  - WHY: Best practices for AI agent documentation
+  - Templates: [templates/llms.txt](templates/llms.txt), [templates/CLAUDE.md](templates/CLAUDE.md)
 
 **DO NOT skip reading these documents - they contain critical implementation details!**
 
@@ -319,49 +581,158 @@ pre-commit run --all-files
 
 ```bash
 # 1. Check project structure
-ls -la .github/workflows/  # MUST contain test.yml
+ls -la .github/workflows/  # MUST contain ci.yml
 ls -la .pre-commit-config.yaml  # MUST exist
 ls -la src/ tests/ docs/  # MUST exist
 
 # 2. Verify dependencies install
 uv sync --dev  # MUST complete without errors
 
-# 3. Run tests
-uv run pytest  # MUST pass all tests
+# 3. Run the application (ALWAYS use uv run python, NOT plain python)
+uv run python src/{package_name}/main.py  # MUST run without errors
 
-# 4. Check code quality
+# 4. Run tests with coverage
+uv run pytest --cov=src/{package_name} --cov-report=term-missing  # MUST pass all tests
+# MUST have minimum 80% coverage (see docs/testing/TEST_COVERAGE.md)
+# If coverage < 80%, bootstrap is INCOMPLETE - add more tests!
+
+# 5. Check code quality
 uv run ruff check .  # MUST pass
 uv run ruff format --check .  # MUST pass
 uv run mypy src/  # SHOULD pass (may need configuration)
 
-# 5. Verify pre-commit hooks
-pre-commit run --all-files  # MUST pass
+# 6. Verify pre-commit hooks
+uv run pre-commit run --all-files  # MUST pass
 
-# 6. Check git
+# 7. Check git
 git status  # MUST show initialized repository
+```
+
+## Troubleshooting Guide
+
+### Bootstrap Order Issues
+
+The correct order is critical for successful bootstrap:
+
+1. Create project directory structure
+2. Create ALL files (including README.md) BEFORE running uv sync
+3. Initialize git repository
+4. Install dependencies with uv sync --dev
+5. Install pre-commit hooks
+6. Run pre-commit to fix formatting
+7. Commit changes
+
+### Common Bootstrap Failures and Solutions
+
+#### Missing README.md Error
+**Problem**: `uv sync` fails with "README.md not found" when readme is referenced in pyproject.toml
+
+**Solution**: Create README.md before running uv sync:
+```bash
+cat > README.md << 'EOF'
+# Project Name
+Project description
+EOF
+```
+
+#### Pre-commit Hook Installation Failures
+**Problem**: Pre-commit hooks fail to install or run
+
+**Solutions**:
+1. Ensure git is initialized BEFORE installing pre-commit
+2. Run `uv sync --dev` to install all dev dependencies first
+3. If mypy hook fails, remove `types-all` from additional_dependencies
+4. Update deprecated stage names: use `pre-push` instead of `push`
+
+#### Dev Dependencies Not Installing
+**Problem**: Tools like ruff, mypy, pytest not available after uv sync
+
+**Solution**: Ensure dev dependencies are properly specified:
+
+**Option 1 - Get latest versions automatically (RECOMMENDED):**
+```bash
+# Add all dev dependencies with latest versions
+uv add --dev pytest pytest-cov mypy ruff black isort pre-commit
+```
+
+**Option 2 - Specify in pyproject.toml:**
+```toml
+[tool.uv]
+dev-dependencies = [
+    "pytest>=8.0.0",
+    "pytest-cov>=6.0.0",
+    "mypy>=1.0.0",
+    "ruff>=0.8.0",
+    "black>=24.0.0",
+    "isort>=5.13.0",
+    "pre-commit>=3.5.0",
+]
+```
+
+⚠️ **IMPORTANT**: Always prefer using `uv add --dev` to get the latest versions
+
+#### Directory Navigation Issues
+**Problem**: Commands fail with "no such file or directory"
+
+**Solution**: Always cd into project directory after creation:
+```bash
+mkdir my-project
+cd my-project  # Don't forget this!
 ```
 
 ## Common Issues & Fixes
 
-### Linting errors on first run
+### README.md not found during bootstrap
 ```bash
-# Fix automatically with ruff
+# Create README.md before running uv sync
+cat > README.md << 'EOF'
+# Project Name
+Project description
+EOF
+```
+
+### Linting and formatting errors on first run
+```bash
+# Fix automatically - order matters!
+# 1. Organize imports with isort (Black profile)
+uv run isort . --profile black
+
+# 2. Format with Black
+uv run black .
+
+# 3. Fix linting issues with Ruff
 uv run ruff check . --fix
 uv run ruff format .
 ```
+
+**Note**: See [docs/testing/CODE_QUALITY.md](docs/testing/CODE_QUALITY.md) for why tool order matters
 
 ### Pre-commit hook failures
 ```bash
 # Let pre-commit fix what it can
 git add -A
-pre-commit run --all-files
+uv run pre-commit run --all-files
 # Then commit the fixes
 ```
 
-### Mypy additional_dependencies error
-- Don't use `types-all` (it's deprecated)
-- Add specific type stubs for your dependencies
-- Example: `additional_dependencies: [types-requests, click]`
+### Code Quality Tool Issues
+
+#### Black and isort Conflicts
+**Problem**: Black and isort format imports differently
+
+**Solution**: 
+- **ALWAYS use isort with Black profile**: `isort . --profile black`
+- Run tools in order: isort → black → ruff
+- See [docs/testing/CODE_QUALITY.md](docs/testing/CODE_QUALITY.md) for complete integration guide
+
+#### Mypy Type Stub Issues
+**Problem**: Mypy pre-commit hook fails with "types-all" package error
+
+**Solution**: 
+- **NEVER use `types-all`** - it's deprecated and causes installation failures
+- Only add specific type stubs (packages starting with 'types-')
+- Example: `additional_dependencies: [types-requests]`
+- See [docs/testing/CODE_QUALITY.md](docs/testing/CODE_QUALITY.md) for full mypy configuration guidance
 
 ### Markdown linting errors
 - Use language specifiers in code blocks: ` ```python` not ` ``` `
