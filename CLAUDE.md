@@ -4,23 +4,24 @@ This file provides guidance to Claude Code (claude.ai/code) and other AI agents 
 
 ## Repository Overview
 
-Template repository providing comprehensive documentation and templates for bootstrapping professional projects with modern tooling, CI/CD, and best practices.
+Professional project template repository designed for AI-assisted development, providing comprehensive documentation and templates for bootstrapping modern software projects with best practices, automated tooling, and production-ready configurations.
 
 ## Available Templates
 
 ### Python Projects
 Complete Python project templates with:
-- Package management using `uv` (10-100x faster than pip)
-- Testing with pytest and coverage
-- CI/CD with GitHub Actions
-- Pre-commit hooks for code quality
-- Type checking with mypy
-- Linting/formatting with ruff
+- **Package Management**: `uv` (10-100x faster than pip, Rust-based)
+- **Testing**: pytest with coverage reporting and fixtures
+- **Code Quality**: ruff (linting/formatting), black (formatting), mypy (type checking)
+- **CI/CD**: GitHub Actions with matrix testing
+- **Pre-commit**: Automated hooks for code quality
+- **Documentation**: Comprehensive guides and best practices
 
 📚 **Python Documentation:**
 - [python/BOOTSTRAP.md](python/BOOTSTRAP.md) - Step-by-step project bootstrap guide
 - [python/AI_AGENT_GUIDE.md](python/AI_AGENT_GUIDE.md) - Common scenarios and quick reference
 - [python/docs/](python/docs/) - Comprehensive documentation for all components
+- [llms.txt](llms.txt) - AI agent overview and quick start
 
 ## How to Use This Repository
 
@@ -51,6 +52,9 @@ Complete Python project templates with:
 4. **Use templates as starting points** - Customize based on user needs
 5. **Verify everything works** - Always run verification commands (Step 9 in BOOTSTRAP.md) before declaring success
 6. **Package Management is Critical** - ALWAYS read [python/docs/PACKAGE_MANAGEMENT.md](python/docs/PACKAGE_MANAGEMENT.md) to understand uv commands, lock files, and best practices
+7. **Test Coverage Matters** - Aim for minimum 80% coverage, critical modules should have 90-100%
+8. **Use Modern Tools** - Prefer uv over pip, ruff over pylint/flake8, use type hints everywhere
+9. **CI/CD is Essential** - Always set up GitHub Actions for automated testing and quality checks
 
 ## Common Commands for Python Projects
 
@@ -59,18 +63,39 @@ Complete Python project templates with:
 All Python projects use `uv` for package management:
 
 ```bash
+# Install uv (if not installed)
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Initialize project
+uv init
+
 # Install dependencies
 uv sync --dev
 
-# Run tests
-uv run pytest
+# Add a new dependency
+uv add package-name
+uv add --dev package-name  # for dev dependencies
+
+# Run tests with coverage
+uv run pytest --cov=src --cov-report=term-missing
 
 # Linting and formatting
-uv run ruff check .
+uv run ruff check . --fix
 uv run ruff format .
+uv run black .
 
 # Type checking
 uv run mypy src/
+
+# Pre-commit hooks
+uv run pre-commit install
+uv run pre-commit run --all-files
+
+# Build package
+uv build
+
+# Update lock file
+uv lock
 ```
 
 **AI AGENTS**: You MUST read [python/docs/PACKAGE_MANAGEMENT.md](python/docs/PACKAGE_MANAGEMENT.md) for:
@@ -79,6 +104,7 @@ uv run mypy src/
 - Troubleshooting common issues
 - Best practices and DO's/DON'Ts
 - Migration from pip
+- Publishing to PyPI
 
 ## Template Placeholders
 
