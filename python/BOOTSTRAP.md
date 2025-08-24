@@ -45,8 +45,16 @@ mkdir -p src/{package_name} tests docs scripts .github/workflows
 
 ### pyproject.toml
 
-⚠️ **IMPORTANT: Read `docs/PACKAGE_MANAGEMENT.md` BEFORE implementing!**
-The linked documentation contains critical details about uv commands, lock files, and best practices.
+⚠️ **IMPORTANT: Read `docs/PACKAGE_MANAGEMENT.md` AND `docs/testing/CODE_QUALITY.md` BEFORE implementing!**
+These documents contain critical details about:
+- Package management with uv
+- Code quality tools configuration (Black, isort, Ruff, MyPy)
+- Best practices for tool integration
+
+**Dev Dependencies Installation Guidance**:
+- ⚠️ **ALWAYS use the latest versions** - Don't use the example versions below
+- Run `uv add --dev <package>` to get the latest version automatically
+- Or check PyPI for current versions before specifying
 
 Use the template structure from `docs/PACKAGE_MANAGEMENT.md` with these essential sections:
 
@@ -59,24 +67,29 @@ build-backend = "hatchling.build"
 name = "{package_name}"
 version = "0.1.0"
 description = "{description}"
+readme = "README.md"
 requires-python = ">={python_version}"
 dependencies = []
 
 [tool.uv]
+# ⚠️ IMPORTANT: These are example versions - use latest versions!
+# Run: uv add --dev pytest pytest-cov mypy ruff black isort pre-commit
+# This will automatically get the latest versions
 dev-dependencies = [
-    "pytest>=8.0.0",
-    "pytest-cov>=6.0.0",
-    "mypy>=1.0.0",
-    "ruff>=0.8.0",
-    "pre-commit>=3.5.0",
+    "pytest>=8.0.0",      # Testing framework
+    "pytest-cov>=6.0.0",  # Coverage plugin for pytest
+    "mypy>=1.0.0",        # Static type checker
+    "ruff>=0.8.0",        # Fast linter and formatter
+    "black>=24.0.0",      # Code formatter
+    "isort>=5.13.0",      # Import sorter
+    "pre-commit>=3.5.0",  # Git hook manager
 ]
 ```
 
-**REQUIRED ACTION**: Open and read the full configuration options in `docs/PACKAGE_MANAGEMENT.md` to understand:
-- Complete pyproject.toml structure
-- Lock file management
-- Common uv commands
-- Best practices and troubleshooting
+**REQUIRED ACTIONS**: 
+1. Read `docs/PACKAGE_MANAGEMENT.md` for package management details
+2. Read `docs/testing/CODE_QUALITY.md` for tool configuration (Black, isort, Ruff)
+3. Use `uv add --dev` to get latest versions instead of hardcoding versions
 
 ### Makefile
 
@@ -116,8 +129,11 @@ lint:
 	uv run ruff check .
 
 format:
-	uv run ruff format .
+	# Run isort first (with black profile), then black
+	# See docs/testing/CODE_QUALITY.md for why order matters
+	uv run isort . --profile black
 	uv run black .
+	uv run ruff format .
 
 typecheck:
 	uv run mypy src/
@@ -139,7 +155,35 @@ Standard Python gitignore including:
 - `.idea/`, `.vscode/`, `.DS_Store`
 - `uv.lock` (if desired for development)
 
-## Step 4: Create Initial Source Files
+## Step 4: Create README and Initial Source Files
+
+### README.md
+```markdown
+# {project_name}
+
+{description}
+
+## Installation
+
+```bash
+uv sync --dev
+```
+
+## Usage
+
+```bash
+uv run {package_name}
+```
+
+## Development
+
+```bash
+make test         # Run tests
+make lint         # Run linting
+make format       # Format code
+make all          # Run all checks
+```
+```
 
 ### src/{package_name}/__init__.py
 ```python
@@ -152,10 +196,15 @@ Create a minimal main module with at least one function to test.
 
 ## Step 5: Set Up Testing
 
-**BEFORE PROCEEDING**: If testing setup is new to you, read `docs/testing/TEST_COVERAGE.md` for:
-- Testing best practices
-- Coverage configuration
-- pytest fixtures and patterns
+**BEFORE PROCEEDING**: Read BOTH documents:
+1. `docs/testing/TEST_COVERAGE.md` - Testing setup and coverage targets
+2. `docs/testing/CODE_QUALITY.md` - Code quality tools configuration
+
+These documents cover:
+- Testing best practices and coverage configuration
+- Black and isort setup for consistent formatting
+- Ruff configuration for linting
+- MyPy setup for type checking
 
 ### tests/test_main.py
 Create basic tests that import and test your package:
@@ -242,8 +291,8 @@ repos:
     rev: v1.11.2
     hooks:
       - id: mypy
-        # Add project-specific type stubs as needed
-        additional_dependencies: []  # Add deps like: [types-requests, click]
+        # Add project-specific type stubs as needed, NOT types-all
+        additional_dependencies: []  # Add specific stubs like: [types-requests]
         args: [--ignore-missing-imports]
         files: ^src/  # Only check src directory
 
@@ -266,7 +315,7 @@ repos:
         entry: uv run pytest
         language: system
         pass_filenames: false
-        stages: [push]
+        stages: [pre-push]
 ```
 
 **Note about optional hooks:**
@@ -285,11 +334,14 @@ The documentation explains hook stages, custom hooks, and troubleshooting.
 ## Step 8: Initialize and Install
 
 ```bash
+# Navigate to project directory
+cd {project_name}
+
 # Initialize git FIRST (required for pre-commit)
 git init
 
-# Install uv (if not present)
-curl -LsSf https://astral.sh/uv/install.sh | sh
+# Check if uv is installed, install if not present
+command -v uv >/dev/null 2>&1 || curl -LsSf https://astral.sh/uv/install.sh | sh
 
 # Install dependencies
 uv sync --dev
@@ -297,13 +349,19 @@ uv sync --dev
 # Install pre-commit hooks
 uv run pre-commit install
 
-# Fix any initial linting issues
+# Fix any initial linting and formatting issues
+# Order matters: isort -> black -> ruff (see docs/testing/CODE_QUALITY.md)
+uv run isort . --profile black
+uv run black .
 uv run ruff check . --fix
 uv run ruff format .
 
 # Stage and verify with pre-commit
 git add .
 uv run pre-commit run --all-files  # May need to run twice if files are fixed
+
+# If pre-commit made changes, stage them again
+git add .
 
 # Initial commit
 git commit -m "Initial project structure"
@@ -323,7 +381,9 @@ uv pip list
 # Testing
 uv run pytest
 
-# Code quality
+# Code quality (see docs/testing/CODE_QUALITY.md for details)
+uv run isort . --check-only --profile black
+uv run black . --check
 uv run ruff check .
 uv run ruff format --check .
 uv run mypy src/
@@ -348,6 +408,12 @@ uv run pre-commit run --all-files
 - **Package Management** (Step 3, 8, 9): [docs/PACKAGE_MANAGEMENT.md](docs/PACKAGE_MANAGEMENT.md)
   - WHEN: Creating pyproject.toml, Makefile, running uv commands
   - WHY: Contains complete templates, command reference, troubleshooting
+  - ⚠️ CRITICAL: Use `uv add --dev` to get latest package versions
+  
+- **Code Quality** (Step 3, 5, 8, 9): [docs/testing/CODE_QUALITY.md](docs/testing/CODE_QUALITY.md)
+  - WHEN: Setting up Black, isort, Ruff, MyPy
+  - WHY: Tool configuration, integration, and order of operations
+  - ⚠️ CRITICAL: Read sections on Black+isort integration to avoid conflicts
   
 - **GitHub Actions** (Step 6): [docs/cicd/GITHUB_ACTIONS.md](docs/cicd/GITHUB_ACTIONS.md)
   - WHEN: Setting up CI/CD workflows
@@ -393,14 +459,104 @@ uv run pre-commit run --all-files  # MUST pass
 git status  # MUST show initialized repository
 ```
 
+## Troubleshooting Guide
+
+### Bootstrap Order Issues
+
+The correct order is critical for successful bootstrap:
+
+1. Create project directory structure
+2. Create ALL files (including README.md) BEFORE running uv sync
+3. Initialize git repository
+4. Install dependencies with uv sync --dev
+5. Install pre-commit hooks
+6. Run pre-commit to fix formatting
+7. Commit changes
+
+### Common Bootstrap Failures and Solutions
+
+#### Missing README.md Error
+**Problem**: `uv sync` fails with "README.md not found" when readme is referenced in pyproject.toml
+
+**Solution**: Create README.md before running uv sync:
+```bash
+cat > README.md << 'EOF'
+# Project Name
+Project description
+EOF
+```
+
+#### Pre-commit Hook Installation Failures
+**Problem**: Pre-commit hooks fail to install or run
+
+**Solutions**:
+1. Ensure git is initialized BEFORE installing pre-commit
+2. Run `uv sync --dev` to install all dev dependencies first
+3. If mypy hook fails, remove `types-all` from additional_dependencies
+4. Update deprecated stage names: use `pre-push` instead of `push`
+
+#### Dev Dependencies Not Installing
+**Problem**: Tools like ruff, mypy, pytest not available after uv sync
+
+**Solution**: Ensure dev dependencies are properly specified:
+
+**Option 1 - Get latest versions automatically (RECOMMENDED):**
+```bash
+# Add all dev dependencies with latest versions
+uv add --dev pytest pytest-cov mypy ruff black isort pre-commit
+```
+
+**Option 2 - Specify in pyproject.toml:**
+```toml
+[tool.uv]
+dev-dependencies = [
+    "pytest>=8.0.0",
+    "pytest-cov>=6.0.0",
+    "mypy>=1.0.0",
+    "ruff>=0.8.0",
+    "black>=24.0.0",
+    "isort>=5.13.0",
+    "pre-commit>=3.5.0",
+]
+```
+
+⚠️ **IMPORTANT**: Always prefer using `uv add --dev` to get the latest versions
+
+#### Directory Navigation Issues
+**Problem**: Commands fail with "no such file or directory"
+
+**Solution**: Always cd into project directory after creation:
+```bash
+mkdir my-project
+cd my-project  # Don't forget this!
+```
+
 ## Common Issues & Fixes
 
-### Linting errors on first run
+### README.md not found during bootstrap
 ```bash
-# Fix automatically with ruff
+# Create README.md before running uv sync
+cat > README.md << 'EOF'
+# Project Name
+Project description
+EOF
+```
+
+### Linting and formatting errors on first run
+```bash
+# Fix automatically - order matters!
+# 1. Organize imports with isort (Black profile)
+uv run isort . --profile black
+
+# 2. Format with Black
+uv run black .
+
+# 3. Fix linting issues with Ruff
 uv run ruff check . --fix
 uv run ruff format .
 ```
+
+**Note**: See [docs/testing/CODE_QUALITY.md](docs/testing/CODE_QUALITY.md) for why tool order matters
 
 ### Pre-commit hook failures
 ```bash
@@ -410,10 +566,24 @@ uv run pre-commit run --all-files
 # Then commit the fixes
 ```
 
-### Mypy additional_dependencies error
-- Don't use `types-all` (it's deprecated)
-- Add specific type stubs for your dependencies
-- Example: `additional_dependencies: [types-requests, click]`
+### Code Quality Tool Issues
+
+#### Black and isort Conflicts
+**Problem**: Black and isort format imports differently
+
+**Solution**: 
+- **ALWAYS use isort with Black profile**: `isort . --profile black`
+- Run tools in order: isort → black → ruff
+- See [docs/testing/CODE_QUALITY.md](docs/testing/CODE_QUALITY.md) for complete integration guide
+
+#### Mypy Type Stub Issues
+**Problem**: Mypy pre-commit hook fails with "types-all" package error
+
+**Solution**: 
+- **NEVER use `types-all`** - it's deprecated and causes installation failures
+- Only add specific type stubs (packages starting with 'types-')
+- Example: `additional_dependencies: [types-requests]`
+- See [docs/testing/CODE_QUALITY.md](docs/testing/CODE_QUALITY.md) for full mypy configuration guidance
 
 ### Markdown linting errors
 - Use language specifiers in code blocks: ` ```python` not ` ``` `
